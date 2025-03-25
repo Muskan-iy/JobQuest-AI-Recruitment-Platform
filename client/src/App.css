@@ -1,0 +1,23 @@
+/* App.css */
+.app-container {
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.app-container h1 {
+  color: #333;
+  font-size: 2rem;
+}
+
+.app-container button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.app-container button:hover {
+  background-color: #0056b3;
+} 

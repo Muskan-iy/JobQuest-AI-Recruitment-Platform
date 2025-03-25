@@ -1,0 +1,194 @@
+/* Scoped Global Reset (only for this component) */
+.recruiter-main-page * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Scoped body styles for the RecruiterMain component */
+.recruiter-main-body {
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background-image: url(./assets/discuss5.jpg);
+  background-size: cover;
+  background-position: center center;
+  transition: background-color 0.3s ease-in-out;
+  overflow: hidden; /* Prevent scrolling */
+}
+
+/* Recruiter Page Layout */
+.recruiter-main-page {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar Styling */
+.recruiter-main-sidebar {
+  width: 130px;
+  background-color: rgba(143, 183, 228, 0.671); /* Sidebar color */
+  color: #000000;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  transition: width 0.3s ease-in-out;
+}
+
+.recruiter-main-logo img {
+  width: 120px; /* Same logo size */
+  margin-bottom: 30px;
+  align-self: center;
+}
+
+.recruiter-main-menu {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.recruiter-main-menu-item {
+  display: flex;
+  align-items: center;
+  color: #0f0e0e;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: transparent;
+  transition: background-color 0.3s ease;
+}
+
+.recruiter-main-menu-item:hover {
+  background-color: #3b434f;
+}
+
+.recruiter-main-fonticon {
+  font-size: 30px;
+  margin-right: 20px;
+}
+
+/* Logout Button */
+.recruiter-main-logout-container {
+  margin-top: auto;
+}
+
+.recruiter-main-logout {
+  background-color: #2a2d34;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Main Content */
+.recruiter-main-content {
+  margin-left: 220px; /* Decreased this margin to reduce space between sidebar and cards */
+  padding: 40px;
+  color: #f8f6f6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  width: calc(100% - 220px); /* Adjust width to fit the content after reducing margin */
+}
+
+/* Header */
+.recruiter-main-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.recruiter-main-header h1 {
+  font-size: 40px;
+  color: #fafafa;
+}
+
+.recruiter-main-header p {
+  font-size: 18px;
+  color: #fffefe;
+}
+
+/* Recruiter Content */
+.recruiter-main-cards {
+  display: flex;
+  justify-content: space-evenly; /* Ensures equal spacing between cards */
+  align-items: center;
+  width: 100%;
+  gap: 20px; /* Adds space between the cards */
+}
+
+/* Recruiter Card */
+.recruiter-main-card {
+  background-color: rgba(143, 183, 228, 0.671);
+  padding: 20px;
+  width: 300px; /* Card width stays the same */
+  height: 450px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Card Hover Effect */
+.recruiter-main-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Card Titles */
+.recruiter-main-card h2 {
+  font-size: 22px;
+  color: #021f41;
+}
+
+/* Card Descriptions */
+.recruiter-main-card p {
+  font-size: 16px;
+  color: #021f41;
+  padding: 0 10px;
+}
+
+/* Card Images */
+.recruiter-main-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Buttons */
+.recruiter-main-btn {
+  background-color: #2a2d34;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.recruiter-main-btn:hover {
+  background-color: #3b434f;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .recruiter-main-cards {
+    flex-wrap: wrap; /* Wrap cards if the screen is too small */
+    justify-content: center;
+  }
+
+  .recruiter-main-card {
+    width: 100%;
+    height: auto;
+  }
+}

@@ -1,0 +1,162 @@
+/* General Styles */
+:root {
+  --primary-color: #ff6f61; /* Coral */
+  --secondary-color: #6b5b95; /* Purple */
+  --background-color: #1a1a2e; /* Dark blue */
+  --text-color: #ffffff;
+  --accent-color: #00bcd4; /* Cyan */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.login-page {
+  background-color: var(--background-color);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-main-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 90%;
+  max-width: 1000px;
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+}
+
+.login-sidebar {
+  width: 35%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  text-align: center;
+  border-right: 1px solid var(--glass-border);
+}
+
+.login-logo {
+  max-width: 150px;
+  margin-bottom: 20px;
+}
+
+.login-description p {
+  font-size: 18px;
+  color: var(--text-color);
+  margin-bottom: 20px;
+}
+
+.login-discussion {
+  max-width: 30%;
+  height: 30%;
+}
+
+.login-form-container {
+  width: 60%;
+  padding: 20px;
+  background-color: var(--glass-bg);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 400px;
+}
+
+.login-tab-switch {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.login-tab-switch button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  background-color: var(--glass-bg);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.login-tab-switch button.login-active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.login-form-group {
+  margin-bottom: 15px;
+  text-align: left;
+  width: 100%;
+}
+
+.login-form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-color);
+}
+
+.login-form-group input {
+  width: 95%;
+  padding: 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 5px;
+  background-color: var(--glass-bg);
+  color: var(--text-color);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: var(--secondary-color);
+}
+
+.login-back {
+  font-size: 1.2rem;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  color: var(--text-color);
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.login-additional-links {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.login-forgot-password {
+  margin-top: 10px;
+  color: var(--accent-color);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 5px 0;
+  font-size: 14px;
+}
+
+.login-forgot-password:hover {
+  color: var(--primary-color);
+}

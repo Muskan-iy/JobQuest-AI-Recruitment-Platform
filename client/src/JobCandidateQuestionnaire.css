@@ -1,0 +1,109 @@
+/* Unique styles for the JobCandidateQuestionnaire component */
+.questionnaire-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: #f8f9fa;
+    height: 100vh; /* Ensure it takes up the full screen height */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+  }
+  
+  .questionnaire-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .questionnaire-form {
+    width: 100%;
+    max-width: 800px;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px; /* Ensure some space above */
+    max-height: 90vh; /* Allow the form to take up most of the screen */
+    overflow-y: auto; /* Enable scrolling if content overflows */
+  }
+  
+  .questionnaire-section-title {
+    font-size: 1.5rem;
+    margin-top: 30px;
+    color: rgba(0, 0, 0, 0.7);
+    font-weight: 600;
+  }
+  
+  .questionnaire-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 15px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+  
+  .question-item {
+    margin-bottom: 20px;
+  }
+  
+  .question-text {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    color: rgba(0, 0, 0, 0.7);
+  }
+  
+  .question-option {
+    margin-right: 10px;
+    font-size: 0.95rem;
+    color: rgba(0, 0, 0, 0.6);
+  }
+  
+  .radio-input {
+    margin-right: 5px;
+  }
+  
+  .submit-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px; /* Space between questions and the button */
+    width: 100%; /* Full width */
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
+  }
+  
+  @media (max-width: 768px) {
+    .questionnaire-container {
+      padding: 10px;
+    }
+  
+    .questionnaire-form {
+      padding: 20px;
+    }
+  
+    .questionnaire-title {
+      font-size: 1.5rem;
+    }
+  
+    .questionnaire-section-title {
+      font-size: 1.25rem;
+    }
+  
+    .questionnaire-subtitle {
+      font-size: 1.1rem;
+    }
+  
+    .question-text {
+      font-size: 0.95rem;
+    }
+  
+    .submit-button {
+      font-size: 14px;
+    }
+  }
+  
