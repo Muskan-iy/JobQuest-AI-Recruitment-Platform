@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import "./RecruiterMain.css" // Import unique styles for Recruiter page
-import Preloader from "./Preloader"; // Import preloader
+import { Link } from "react-router-dom";
+import "./RecruiterMain.css" 
+import Preloader from "./Preloader"; 
 import logo from "./logo.png";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Applicants from "./Applicants.png";
@@ -29,16 +30,20 @@ const RecruiterMain = () => {
         </div>
         <nav className="recruiter-main-menu">
           <button className="recruiter-main-menu-item">
-            <i className="fas fa-user recruiter-main-fonticon"></i>
-          </button>
-          <button className="recruiter-main-menu-item">
-            <i className="fas fa-house recruiter-main-fonticon"></i>
+            <i className="fas fa-home recruiter-main-fonticon"></i>
+            <span>Dashboard</span>
           </button>
           <button className="recruiter-main-menu-item">
             <i className="fas fa-bell recruiter-main-fonticon"></i>
+            <span>Notifications</span>
           </button>
           <button className="recruiter-main-menu-item">
-            <i className="fas fa-file recruiter-main-fonticon"></i>
+            <i className="fas fa-user recruiter-main-fonticon"></i>
+            <span>Profile</span>
+          </button>
+          <button className="recruiter-main-menu-item">
+            <i className="fas fa-file-alt recruiter-main-fonticon"></i>
+            <span>Documents</span>
           </button>
         </nav>
         <div className="recruiter-main-logout-container">
@@ -64,7 +69,8 @@ const RecruiterMain = () => {
               Easily create and publish job listings to attract top talent
               for your organization.
             </p>
-            <button className="recruiter-main-btn">Post Now</button>
+            <Link to="/Postjob"><button className="recruiter-main-btn">Post Now</button>
+            </Link>
           </div>
           <div className="recruiter-main-card">
             <div className="recruiter-main-icon">
@@ -89,6 +95,11 @@ const RecruiterMain = () => {
             <button className="recruiter-main-btn">View Now</button>
           </div>
         </div>
+        <footer className="recruiter-footer">
+          <div className="recruiter-footer-content">
+            <p>© 2024-2025 JobQuest by Safia Bakhtawar, Yusra Bakhtawar, & Muskan Iqbal. All rights reserved.</p>
+                </div>
+                </footer>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import Opening from './Opening';
 import Login from './Login';
 import Applicant from './Applicant';
 import RecruiterMain from './RecruiterMain';
+import Postjob from './Postjob';
 import JobCandidateQuestionnaire from './JobCandidateQuestionnaire';
 import './index.css';
 
@@ -46,10 +47,11 @@ root.render(
       <ThemeProvider>
         <Routes>
           <Route path="/" element={<Opening />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/applicant" element={<Applicant />} />
-          <Route path="/recruiter" element={<RecruiterMain />} />
-          <Route path="/JobCandidateQuestionnaire" element={<JobCandidateQuestionnaire />} />
+          <Route path="/Login" element={<Login />} />
+          <Route path="/Applicant" element={<Applicant />} />
+          <Route path="/Recruiter" element={<RecruiterMain />} />
+          <Route path="/Postjob" element={<Postjob />} />
+          <Route path="/PersonalityTest" element={<JobCandidateQuestionnaire />} />
         </Routes>
       </ThemeProvider>
     </BrowserRouter>

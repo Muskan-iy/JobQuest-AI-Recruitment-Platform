@@ -3,86 +3,158 @@ import styles from './Login.module.css';
 import logo from './logo.png';
 import discussion from './discussion.png';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { useNavigate, useLocation } from 'react-router-dom'; 
+import { useNavigate, useLocation } from 'react-router-dom';
+import { loginUser, registerUser, requestPasswordReset, resetPassword } from './api'; 
 
 const Login = () => {
-  const navigate = useNavigate(); // Hook for navigating
-  const location = useLocation(); // Hook for accessing location object
-  const userType = location.state?.userType; // Extract userType from state
-
-  console.log('User type:', userType);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const userType = location.state?.userType;
   const [activeTab, setActiveTab] = useState('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    fullName: '',
+    phoneNumber: '',
+    confirmPassword: '',
+    newPassword: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetToken, setResetToken] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
 
-  // Predefined credentials for applicant and recruiter
-  const predefinedCredentials = {
-    applicant: { email: 'sidra@gmail.com', password: 'password123' },
-    recruiter: { email: 'muskan@gmail.com', password: 'password456' },
-  };
+  // Extract token from URL if present
+  React.useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const token = queryParams.get('token');
+    if (token) {
+      setResetToken(token);
+      setShowResetPassword(true);
+    }
+  }, []);
 
-  // Switch between login and signup tabs
   const switchTab = (tab) => {
-    setActiveTab(tab); 
+    setActiveTab(tab);
+    setError('');
+    setResetSuccess('');
   };
 
-  // Handle login form submission
-  const handleLogin = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    setResetSuccess('');
 
-    // Trim the email and password to remove any extra spaces
-    const trimmedEmail = email.trim().toLowerCase(); // Ensure case-insensitivity for email
-    const trimmedPassword = password.trim();
+    try {
+      const { email, password } = formData;
+      const response = await loginUser(email.trim(), password.trim());
+      
+      console.log('Login successful:', response);
+      
+      if (userType === 'applicant') {
+        navigate('/applicant');
+      } else if (userType === 'recruiter') {
+        navigate('/recruiter');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.message || 'Invalid credentials');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    if (!trimmedEmail || !trimmedPassword) {
-      alert('Please enter both email and password.');
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setResetSuccess('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
       return;
     }
 
-    console.log('Attempting login...');
-    console.log('Email:', trimmedEmail);
-    console.log('Password:', trimmedPassword);
+    try {
+      const userData = {
+        email: formData.email.trim(),
+        password: formData.password.trim(),
+        fullName: formData.fullName.trim(),
+        phoneNumber: formData.phoneNumber.trim()
+      };
 
-    // Check for valid credentials based on user type
-    if (
-      userType === 'applicant' &&
-      trimmedEmail === predefinedCredentials.applicant.email.toLowerCase() &&
-      trimmedPassword === predefinedCredentials.applicant.password
-    ) {
-      console.log('Login successful as applicant');
-      navigate('/applicant'); // Navigate to the applicant page
-    } else if (
-      userType === 'recruiter' &&
-      trimmedEmail === predefinedCredentials.recruiter.email.toLowerCase() &&
-      trimmedPassword === predefinedCredentials.recruiter.password
-    ) {
-      console.log('Login successful as recruiter');
-      navigate('/recruiter'); // Navigate to the recruiter page
-    } else {
-      console.log('Invalid credentials');
-      alert('Invalid credentials');
+      const response = await registerUser(userData);
+      console.log('Registration successful:', response);
+      switchTab('login');
+      setResetSuccess('Registration successful! Please login.');
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Handle signup form submission
-  const handleSignup = (e) => {
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
-    console.log('Signup form submitted');
+    setLoading(true);
+    setError('');
+    setResetSuccess('');
+
+    try {
+      await requestPasswordReset(formData.email.trim());
+      setResetSuccess('Password reset link sent to your email!');
+      setShowForgotPassword(false);
+    } catch (err) {
+      setError(err.message || 'Failed to send reset link');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setResetSuccess('');
+
+    try {
+      await resetPassword(resetToken, formData.newPassword.trim());
+      setResetSuccess('Password reset successfully! You can now login with your new password.');
+      setShowResetPassword(false);
+      setFormData(prev => ({ ...prev, newPassword: '' }));
+    } catch (err) {
+      setError(err.message || 'Failed to reset password');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className={styles['login-page']}>
       <div className={styles['login-main-container']}>
-        {/* Back button */}
         <button
           type="button"
           className={styles['login-back']}
-          onClick={() => navigate('/')} // Navigate to the opening page
+          onClick={() => navigate('/')}
         >
           <i className="fas fa-arrow-left"></i>
         </button>
 
-        {/* Sidebar */}
         <div className={styles['login-sidebar']}>
           <img src={logo} alt="JobQuest Logo" className={styles['login-logo']} />
           <div className={styles['login-description']}>
@@ -91,7 +163,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Form container */}
         <div className={styles['login-form-container']}>
           <div className={styles['login-tab-switch']}>
             <button
@@ -108,17 +179,81 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Login form */}
-          {activeTab === 'login' && (
+          {error && <div className={styles['login-error']}>{error}</div>}
+          {resetSuccess && <div className={styles['login-success']}>{resetSuccess}</div>}
+
+          {showResetPassword ? (
+            <form className={styles['login-reset-form']} onSubmit={handlePasswordReset}>
+              <h2>Reset Password</h2>
+              <div className={styles['login-form-group']}>
+                <label>New Password</label>
+                <input
+                  type="password"
+                  name="newPassword"
+                  placeholder="Enter new password"
+                  value={formData.newPassword}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <button 
+                type="submit" 
+                className={styles['login-btn']}
+                disabled={loading}
+              >
+                {loading ? 'Resetting...' : 'Reset Password'}
+              </button>
+              <button
+                type="button"
+                className={styles['login-cancel-btn']}
+                onClick={() => {
+                  setShowResetPassword(false);
+                  setResetToken('');
+                }}
+              >
+                Cancel
+              </button>
+            </form>
+          ) : showForgotPassword ? (
+            <form className={styles['login-forgot-form']} onSubmit={handleForgotPassword}>
+              <h2>Forgot Password</h2>
+              <div className={styles['login-form-group']}>
+                <label>Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <button 
+                type="submit" 
+                className={styles['login-btn']}
+                disabled={loading}
+              >
+                {loading ? 'Sending...' : 'Send Reset Link'}
+              </button>
+              <button
+                type="button"
+                className={styles['login-cancel-btn']}
+                onClick={() => setShowForgotPassword(false)}
+              >
+                Back to Login
+              </button>
+            </form>
+          ) : activeTab === 'login' ? (
             <form className={styles['login-login-form']} onSubmit={handleLogin}>
               <h2>Login</h2>
               <div className={styles['login-form-group']}>
                 <label>Email</label>
                 <input
                   type="email"
+                  name="email"
                   placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -126,9 +261,10 @@ const Login = () => {
                 <label>Password</label>
                 <input
                   type="password"
+                  name="password"
                   placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -136,43 +272,83 @@ const Login = () => {
                 <button
                   type="button"
                   className={styles['login-forgot-password']}
-                  onClick={() => alert('Forgot password clicked')}
+                  onClick={() => setShowForgotPassword(true)}
                 >
                   Forgot Password?
                 </button>
               </div>
-              <button type="submit" className={styles['login-btn']}>
-                Login
+              <button 
+                type="submit" 
+                className={styles['login-btn']}
+                disabled={loading}
+              >
+                {loading ? 'Logging in...' : 'Login'}
               </button>
             </form>
-          )}
-
-          {/* Signup form */}
-          {activeTab === 'signup' && (
+          ) : (
             <form className={styles['login-signup-form']} onSubmit={handleSignup}>
               <h2>Sign up</h2>
               <div className={styles['login-form-group']}>
                 <label>Full Name</label>
-                <input type="text" placeholder="Enter your full name" required />
+                <input 
+                  type="text" 
+                  name="fullName"
+                  placeholder="Enter your full name" 
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required 
+                />
               </div>
               <div className={styles['login-form-group']}>
                 <label>Phone Number</label>
-                <input type="tel" placeholder="Enter your phone number" required />
+                <input 
+                  type="tel" 
+                  name="phoneNumber"
+                  placeholder="Enter your phone number" 
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  required 
+                />
               </div>
               <div className={styles['login-form-group']}>
                 <label>Email</label>
-                <input type="email" placeholder="Enter your email" required />
+                <input 
+                  type="email" 
+                  name="email"
+                  placeholder="Enter your email" 
+                  value={formData.email}
+                  onChange={handleChange}
+                  required 
+                />
               </div>
               <div className={styles['login-form-group']}>
                 <label>Password</label>
-                <input type="password" placeholder="Create a password" required />
+                <input 
+                  type="password" 
+                  name="password"
+                  placeholder="Create a password" 
+                  value={formData.password}
+                  onChange={handleChange}
+                  required 
+                />
               </div>
               <div className={styles['login-form-group']}>
                 <label>Confirm Password</label>
-                <input type="password" placeholder="Confirm your password" required />
+                <input 
+                  type="password" 
+                  name="confirmPassword"
+                  placeholder="Confirm your password" 
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required 
+                />
               </div>
-              <button type="submit" className={styles['login-btn']}>
-                Sign Up
+              <button 
+                type="submit" 
+                className={styles['login-btn']}
+                disabled={loading}
+              >
+                {loading ? 'Registering...' : 'Sign Up'}
               </button>
             </form>
           )}

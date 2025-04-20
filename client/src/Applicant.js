@@ -65,118 +65,127 @@ const Applicant = () => {
             <span>Documents</span>
           </Link>
         </nav>
-        <div className="applicant-page-logout-container">
-          <Link to="#" className="applicant-page-logout">
-            <i className="fas fa-sign-out-alt applicant-page-fonticon"></i>
-            <span>Logout</span>
-          </Link>
+        <div className="applicant-logout-container">
+          <button className="applicant-menu-item recruiter-main-logout">
+            <i className="fas fa-sign-out-alt"></i>
+          </button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="applicant-page-main-content">
-        <div className="applicant-page-header">
-          <h1>Applicant, your journey begins here.</h1>
-          <p>Let's make it memorable.</p>
-        </div>
-        <div className="applicant-page-content">
-          <div className="applicant-page-card">
-            <div className="applicant-page-icon">
-              <img src={Browse} alt="Browse Jobs" />
-            </div>
-            <h2 className="applicant-page-card-title">Browse Jobs</h2>
-            <p className="applicant-page-card-description">
-              Explore job opportunities in multiple industries to discover your dream job.
-            </p>
-            <button className="applicant-page-btn" onClick={handleBrowseClick}>
-              Start Browsing
-            </button>
+      {/* Main Content Wrapper */}
+      <div className="applicant-page-main-wrapper">
+        {/* Main Content */}
+        <div className="applicant-page-main-content">
+          <div className="applicant-page-header">
+            <h1>Applicant, your journey begins here.</h1>
+            <p>Let's make it memorable.</p>
           </div>
-          <div className="applicant-page-card">
-            <div className="applicant-page-icon">
-              <img src={SF} alt="Search and Filter" />
+          <div className="applicant-page-content">
+            <div className="applicant-page-card">
+              <div className="applicant-page-icon">
+                <img src={Browse} alt="Browse Jobs" />
+              </div>
+              <h2 className="applicant-page-card-title">Browse Jobs</h2>
+              <p className="applicant-page-card-description">
+                Explore job opportunities in multiple industries to discover your dream job.
+              </p>
+              <button className="applicant-page-btn" onClick={handleBrowseClick}>
+                Start Browsing
+              </button>
             </div>
-            <h2 className="applicant-page-card-title">Search and Filter</h2>
-            <p className="applicant-page-card-description">
-              Find jobs that match your skills and qualifications using our advanced filters.
-            </p>
-            <button className="applicant-page-btn" onClick={handleSearchClick}>
-              Search Now
-            </button>
-          </div>
-          <div className="applicant-page-card">
-            <div className="applicant-page-icon">
-              <img src={PAT1} alt="Personality Analysis" />
+            <div className="applicant-page-card">
+              <div className="applicant-page-icon">
+                <img src={SF} alt="Search and Filter" />
+              </div>
+              <h2 className="applicant-page-card-title">Search and Filter</h2>
+              <p className="applicant-page-card-description">
+                Find jobs that match your skills and qualifications using our advanced filters.
+              </p>
+              <button className="applicant-page-btn" onClick={handleSearchClick}>
+                Search Now
+              </button>
             </div>
-            <h2 className="applicant-page-card-title">Personality Analysis</h2>
-            <p className="applicant-page-card-description">
-              Take our personality analysis test to match your traits.
-            </p>
-            <Link to="/JobCandidateQuestionnaire">
-              <button className="applicant-page-btn">Take Now</button>
-            </Link>
+            <div className="applicant-page-card">
+              <div className="applicant-page-icon">
+                <img src={PAT1} alt="Personality Analysis" />
+              </div>
+              <h2 className="applicant-page-card-title">Personality Analysis</h2>
+              <p className="applicant-page-card-description">
+                Take our personality analysis test to match your traits.
+              </p>
+              <Link to="/JobCandidateQuestionnaire">
+                <button className="applicant-page-btn">Take Now</button>
+              </Link>
+            </div>
           </div>
-        </div>
 
-        {/* Jobs Section with Search Bar */}
-        <div className="applicant-page-jobs-section" ref={jobsSectionRef}>
-          <h2>Available Jobs</h2>
-          <div className="applicant-page-search-bar" ref={searchBarRef}>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for a job..."
-              className="applicant-page-search-input"
-            />
-          </div>
-          <div className="applicant-page-job-list">
-            {[
-              { title: "Content Writer", description: "Faika, Content Writer from Karachi applied recently." },
-              { title: "Front-End Developer", description: "Shaista, Senior Front-End Developer from Gilgit applied." },
-              { title: "Python Expert", description: "Laiba, a Python Expert from Lahore, applied." },
-              { title: "UX Designer", description: "Adnan, a UX Designer from Islamabad applied." },
-              { title: "Java Developer", description: "Ahsan, a Java Developer from Karachi applied." },
-              { title: "Mechanical Engineer", description: "Ali, a Mechanical Engineer from Lahore applied." },
-              { title: "Project Manager", description: "Sara, a Project Manager from Peshawar applied." },
-              { title: "Data Scientist", description: "Hassan, a Data Scientist from Faisalabad applied." },
-              { title: "Cybersecurity Analyst", description: "Tariq, a Cybersecurity Analyst from Rawalpindi applied." },
-              { title: "Digital Marketing Specialist", description: "Zara, a Digital Marketer from Karachi applied." },
-            ]
-              .filter((job) =>
-                job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                job.description.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .slice(currentTab === "tab1" ? 0 : 5, currentTab === "tab1" ? 5 : 10)
-              .map((job, index) => (
-                <div key={index} className="applicant-page-job-item">
-                  <div className="applicant-page-job-avatar">📋</div>
-                  <div className="applicant-page-job-content">
-                    <h3>{job.title}</h3>
-                    <p>{job.description}</p>
-                    <button className="applicant-page-btn applicant-page-learn-more">Learn More</button>
+          {/* Jobs Section with Search Bar */}
+          <div className="applicant-page-jobs-section" ref={jobsSectionRef}>
+            <h2>Available Jobs</h2>
+            <div className="applicant-page-search-bar" ref={searchBarRef}>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for a job..."
+                className="applicant-page-search-input"
+              />
+            </div>
+            <div className="applicant-page-job-list">
+              {[
+                { title: "Content Writer", description: "Faika, Content Writer from Karachi applied recently." },
+                { title: "Front-End Developer", description: "Shaista, Senior Front-End Developer from Gilgit applied." },
+                { title: "Python Expert", description: "Laiba, a Python Expert from Lahore, applied." },
+                { title: "UX Designer", description: "Adnan, a UX Designer from Islamabad applied." },
+                { title: "Java Developer", description: "Ahsan, a Java Developer from Karachi applied." },
+                { title: "Mechanical Engineer", description: "Ali, a Mechanical Engineer from Lahore applied." },
+                { title: "Project Manager", description: "Sara, a Project Manager from Peshawar applied." },
+                { title: "Data Scientist", description: "Hassan, a Data Scientist from Faisalabad applied." },
+                { title: "Cybersecurity Analyst", description: "Tariq, a Cybersecurity Analyst from Rawalpindi applied." },
+                { title: "Digital Marketing Specialist", description: "Zara, a Digital Marketer from Karachi applied." },
+              ]
+                .filter((job) =>
+                  job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  job.description.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .slice(currentTab === "tab1" ? 0 : 5, currentTab === "tab1" ? 5 : 10)
+                .map((job, index) => (
+                  <div key={index} className="applicant-page-job-item">
+                    <div className="applicant-page-job-avatar">📋</div>
+                    <div className="applicant-page-job-content">
+                      <h3>{job.title}</h3>
+                      <p>{job.description}</p>
+                      <button className="applicant-page-btn applicant-page-learn-more">Learn More</button>
+                    </div>
+                    <div className="applicant-page-job-favorite">⭐</div>
                   </div>
-                  <div className="applicant-page-job-favorite">⭐</div>
-                </div>
-              ))}
-          </div>
+                ))}
+            </div>
 
-          {/* Tab Buttons */}
-          <div className="applicant-page-tabs">
-            <button
-              className={`applicant-page-tab-button ${currentTab === "tab1" ? "active" : ""}`}
-              onClick={() => setCurrentTab("tab1")}
-            >
-              Page 1
-            </button>
-            <button
-              className={`applicant-page-tab-button ${currentTab === "tab2" ? "active" : ""}`}
-              onClick={() => setCurrentTab("tab2")}
-            >
-              Page 2
-            </button>
+            {/* Tab Buttons */}
+            <div className="applicant-page-tabs">
+              <button
+                className={`applicant-page-tab-button ${currentTab === "tab1" ? "active" : ""}`}
+                onClick={() => setCurrentTab("tab1")}
+              >
+                Page 1
+              </button>
+              <button
+                className={`applicant-page-tab-button ${currentTab === "tab2" ? "active" : ""}`}
+                onClick={() => setCurrentTab("tab2")}
+              >
+                Page 2
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="applicant-footer">
+          <div className="applicant-footer-content">
+            <p>© 2024-2025 JobQuest by Safia Bakhtawar, Yusra Bakhtawar, & Muskan Iqbal. All rights reserved.</p>
+                </div>
+                </footer>
       </div>
     </div>
   );

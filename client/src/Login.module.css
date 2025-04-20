@@ -1,15 +1,3 @@
-/* General Styles */
-:root {
-  --primary-color: #ff6f61; /* Coral */
-  --secondary-color: #6b5b95; /* Purple */
-  --background-color: #1a1a2e; /* Dark blue */
-  --text-color: #ffffff;
-  --accent-color: #00bcd4; /* Cyan */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
 .login-page {
   background-color: var(--background-color);
   font-family: 'Poppins', sans-serif;
