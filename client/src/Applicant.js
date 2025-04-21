@@ -182,10 +182,32 @@ const Applicant = () => {
 
         {/* Footer */}
         <footer className="applicant-footer">
+<<<<<<< HEAD
           <div className="applicant-footer-content">
             <p>© 2024-2025 JobQuest by Safia Bakhtawar, Yusra Bakhtawar, & Muskan Iqbal. All rights reserved.</p>
                 </div>
                 </footer>
+=======
+          <div className="footer-content">
+            <p>© 2024-2025 JobQuest by Safia Bakhtawar, Yusra Bakhtawar, & Muskan Iqbal. All rights reserved.</p>
+            <div className="footer-social-links">
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-linkedin"></i>
+              </a>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-github"></i>
+              </a>
+            </div>
+            <button 
+              className="footer-back-to-top" 
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              aria-label="Back to top"
+            >
+              <i className="fas fa-arrow-up"></i>
+            </button>
+          </div>
+        </footer>
+>>>>>>> facd205b58b04c28a863dca9fa568b14fd995346
       </div>
     </div>
   );

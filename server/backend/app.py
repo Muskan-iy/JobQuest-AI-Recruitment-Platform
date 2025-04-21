@@ -5,6 +5,7 @@ from models import users_collection
 from config import Config
 from google.oauth2 import id_token
 from google.auth.transport import requests
+<<<<<<< HEAD
 import datetime
 from pymongo import MongoClient
 import secrets
@@ -39,11 +40,17 @@ password_reset_tokens = client['your_database_name']['password_reset_tokens']
 def generate_token():
     alphabet = string.ascii_letters + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(32))
+=======
+
+app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+>>>>>>> facd205b58b04c28a863dca9fa568b14fd995346
 
 # Signup Endpoint
 @app.route('/api/signup', methods=['POST'])
 def signup():
     data = request.json
+<<<<<<< HEAD
     email = data.get('email')
     password = data.get('password')
     full_name = data.get('fullName')
@@ -51,10 +58,15 @@ def signup():
     
     if not all([email, password, full_name, phone_number]):
         return jsonify({'error': 'All fields are required'}), 400
+=======
+    email = data['email']
+    password = data['password'].encode('utf-8')
+>>>>>>> facd205b58b04c28a863dca9fa568b14fd995346
     
     if users_collection.find_one({'email': email}):
         return jsonify({'error': 'User already exists'}), 400
     
+<<<<<<< HEAD
     hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     users_collection.insert_one({
         'email': email,
@@ -63,6 +75,10 @@ def signup():
         'phoneNumber': phone_number,
         'createdAt': datetime.datetime.utcnow()  
     })
+=======
+    hashed_pw = bcrypt.hashpw(password, bcrypt.gensalt())
+    users_collection.insert_one({'email': email, 'password': hashed_pw})
+>>>>>>> facd205b58b04c28a863dca9fa568b14fd995346
     return jsonify({'message': 'Signup successful'}), 201
 
 # Login Endpoint
@@ -90,6 +106,7 @@ def google_login():
     except ValueError:
         return jsonify({'error': 'Invalid token'}), 400
 
+<<<<<<< HEAD
 # Forgot Password Endpoint
 @app.route('/api/forgot-password', methods=['POST'])
 def forgot_password():
@@ -159,5 +176,7 @@ def reset_password():
     
     return jsonify({'message': 'Password updated successfully'}), 200
 
+=======
+>>>>>>> facd205b58b04c28a863dca9fa568b14fd995346
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
