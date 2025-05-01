@@ -1,182 +1,158 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import bcrypt
-from models import users_collection
-from config import Config
-from google.oauth2 import id_token
-from google.auth.transport import requests
-<<<<<<< HEAD
 import datetime
-from pymongo import MongoClient
-import secrets
-import string
-from flask_mail import Mail, Message
-
-client = MongoClient("mongodb://localhost:27017/")
+import jwt
+from functools import wraps
+import os
+from models import users_collection, profiles_collection
+from config import Config
 
 app = Flask(__name__)
+app.config.from_object(Config)
+
+# CORS Configuration
 CORS(app, resources={
     r"/api/*": {
         "origins": ["http://localhost:3000"],
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"],
+        "methods": ["GET", "POST", "PUT", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
         "supports_credentials": True
     }
 })
 
-# Email Configuration (Update with your SMTP settings)
-app.config['MAIL_SERVER'] = 'smtp.example.com'  # e.g., 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your_email@example.com'
-app.config['MAIL_PASSWORD'] = 'your_email_password'
-app.config['MAIL_DEFAULT_SENDER'] = 'your_email@example.com'
+# JWT Helpers
+def create_token(user):
+    token_data = {
+        'email': user['email'],
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=Config.TOKEN_EXPIRE_MINUTES)
+    }
+    return jwt.encode(token_data, Config.SECRET_KEY, algorithm="HS256")
 
-mail = Mail(app)
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        auth_header = request.headers.get('Authorization')
+        
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(" ")[1]
+        
+        if not token:
+            return jsonify({'error': 'Token is missing'}), 401
+            
+        try:
+            data = jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
+            current_user = users_collection.find_one({'email': data['email']})
+            if not current_user:
+                return jsonify({'error': 'User not found'}), 401
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+            
+        return f(current_user, *args, **kwargs)
+    return decorated
 
-# Password Reset Token Collection
-password_reset_tokens = client['your_database_name']['password_reset_tokens']
-
-def generate_token():
-    alphabet = string.ascii_letters + string.digits
-    return ''.join(secrets.choice(alphabet) for _ in range(32))
-=======
-
-app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
->>>>>>> facd205b58b04c28a863dca9fa568b14fd995346
-
-# Signup Endpoint
+# Auth Endpoints
 @app.route('/api/signup', methods=['POST'])
 def signup():
     data = request.json
-<<<<<<< HEAD
-    email = data.get('email')
-    password = data.get('password')
-    full_name = data.get('fullName')
-    phone_number = data.get('phoneNumber')
+    required_fields = ['email', 'password', 'fullName']
     
-    if not all([email, password, full_name, phone_number]):
-        return jsonify({'error': 'All fields are required'}), 400
-=======
-    email = data['email']
-    password = data['password'].encode('utf-8')
->>>>>>> facd205b58b04c28a863dca9fa568b14fd995346
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Missing required fields'}), 400
     
-    if users_collection.find_one({'email': email}):
+    if users_collection.find_one({'email': data['email']}):
         return jsonify({'error': 'User already exists'}), 400
     
-<<<<<<< HEAD
-    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    users_collection.insert_one({
-        'email': email,
+    hashed_pw = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
+    
+    user_data = {
+        'email': data['email'],
         'password': hashed_pw,
-        'fullName': full_name,
-        'phoneNumber': phone_number,
-        'createdAt': datetime.datetime.utcnow()  
-    })
-=======
-    hashed_pw = bcrypt.hashpw(password, bcrypt.gensalt())
-    users_collection.insert_one({'email': email, 'password': hashed_pw})
->>>>>>> facd205b58b04c28a863dca9fa568b14fd995346
-    return jsonify({'message': 'Signup successful'}), 201
+        'fullName': data['fullName'],
+        'createdAt': datetime.datetime.utcnow(),
+        'updatedAt': datetime.datetime.utcnow()
+    }
+    
+    users_collection.insert_one(user_data)
+    
+    token = create_token(user_data)
+    return jsonify({
+        'token': token,
+        'user': {
+            'email': user_data['email'],
+            'fullName': user_data['fullName']
+        }
+    }), 201
 
-# Login Endpoint
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    email = data['email']
-    password = data['password'].encode('utf-8')
+    if not data or 'email' not in data or 'password' not in data:
+        return jsonify({'error': 'Email and password required'}), 400
     
-    user = users_collection.find_one({'email': email})
-    if user and bcrypt.checkpw(password, user['password']):
-        return jsonify({'message': 'Login successful'}), 200
-    return jsonify({'error': 'Invalid credentials'}), 401
-
-# Google Login Endpoint
-@app.route('/api/google-login', methods=['POST'])
-def google_login():
-    token = request.json['token']
-    try:
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), Config.GOOGLE_CLIENT_ID)
-        email = idinfo['email']
-        if not users_collection.find_one({'email': email}):
-            users_collection.insert_one({'email': email, 'google_login': True})
-        return jsonify({'message': 'Google login successful'}), 200
-    except ValueError:
-        return jsonify({'error': 'Invalid token'}), 400
-
-<<<<<<< HEAD
-# Forgot Password Endpoint
-@app.route('/api/forgot-password', methods=['POST'])
-def forgot_password():
-    email = request.json.get('email')
-    if not email:
-        return jsonify({'error': 'Email is required'}), 400
+    user = users_collection.find_one({'email': data['email']})
+    if not user or not bcrypt.checkpw(data['password'].encode('utf-8'), user['password']):
+        return jsonify({'error': 'Invalid credentials'}), 401
     
-    user = users_collection.find_one({'email': email})
-    if not user:
-        return jsonify({'message': 'If this email exists, a reset link has been sent'}), 200
-    
-    # Generate and store token
-    token = generate_token()
-    password_reset_tokens.insert_one({
-        'email': email,
+    token = create_token(user)
+    return jsonify({
         'token': token,
-        'createdAt': datetime.datetime.utcnow(),
-        'expiresAt': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    })
-    
-    # In development, print the token to console instead of sending email
-    if app.debug:
-        print(f"Password reset token for {email}: {token}")
-        return jsonify({
-            'message': 'Development mode - Token printed to console',
-            'token': token  # Only for development!
-        }), 200
-    
-    # In production, send actual email
-    try:
-        msg = Message('Password Reset Request',
-                     recipients=[email])
-        msg.body = f'Click to reset your password: http://localhost:3000/reset-password?token={token}'
-        mail.send(msg)
-        return jsonify({'message': 'Password reset link sent'}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        'user': {
+            'email': user['email'],
+            'fullName': user['fullName']
+        }
+    }), 200
 
-# Reset Password Endpoint
-@app.route('/api/reset-password', methods=['POST'])
-def reset_password():
-    data = request.json
-    token = data.get('token')
-    new_password = data.get('newPassword')
+# Profile Endpoints
+@app.route('/api/profile', methods=['GET', 'POST', 'PUT'])
+@token_required
+def profile(current_user):
+    if request.method == 'GET':
+        profile = profiles_collection.find_one({'email': current_user['email']})
+        if profile:
+            profile['_id'] = str(profile['_id'])
+            return jsonify(profile), 200
+        return jsonify({'error': 'Profile not found'}), 404
     
-    if not all([token, new_password]):
-        return jsonify({'error': 'Token and new password are required'}), 400
-    
-    # Find and validate token
-    reset_request = password_reset_tokens.find_one({
-        'token': token,
-        'expiresAt': {'$gt': datetime.datetime.utcnow()}
-    })
-    
-    if not reset_request:
-        return jsonify({'error': 'Invalid or expired token'}), 400
-    
-    # Update password
-    hashed_pw = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-    users_collection.update_one(
-        {'email': reset_request['email']},
-        {'$set': {'password': hashed_pw}}
-    )
-    
-    # Delete used token
-    password_reset_tokens.delete_one({'token': token})
-    
-    return jsonify({'message': 'Password updated successfully'}), 200
+    elif request.method in ['POST', 'PUT']:
+        data = request.json
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Ensure name is always saved from user data
+        if 'name' not in data:
+            data['name'] = current_user['fullName']
+        
+        data['email'] = current_user['email']
+        data['updatedAt'] = datetime.datetime.utcnow()
+        
+        profiles_collection.update_one(
+            {'email': current_user['email']},
+            {'$set': data},
+            upsert=True
+        )
+        
+        # Return the updated profile
+        profile = profiles_collection.find_one({'email': current_user['email']})
+        profile['_id'] = str(profile['_id'])
+        return jsonify(profile), 200
 
-=======
->>>>>>> facd205b58b04c28a863dca9fa568b14fd995346
+# User Profile Endpoint
+@app.route('/api/user/profile', methods=['GET'])
+@token_required
+def user_profile(current_user):
+    profile = profiles_collection.find_one({'email': current_user['email']})
+    return jsonify({
+        'user': {
+            'email': current_user['email'],
+            'fullName': current_user['fullName']
+        },
+        'profile': profile if profile else None
+    }), 200
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
+    app.run(debug=True, port=5001)

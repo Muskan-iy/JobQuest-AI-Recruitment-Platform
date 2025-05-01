@@ -7,10 +7,9 @@ from datetime import datetime
 from typing import List, Dict, Set, Tuple
 import hashlib
 from fuzzywuzzy import fuzz 
+from werkzeug.utils import secure_filename
+from flask_cors import CORS
 
-app = Flask(__name__)
-
-# --- Constants and Configurations ---
 # Profession-specific keywords for detection
 PROFESSION_KEYWORDS = {
     "Software Engineering": {'software', 'developer', 'engineer', 'programming', 'python', 'java', 'javascript', 'api', 'backend', 'frontend', 'react', 'flask', 'node', 'sql', 'machine learning', 'yolov', 'graphql', 'postman'},
@@ -42,7 +41,6 @@ SECTION_STARTS = {
 GENERAL_SKILLS = {'communication', 'teamwork', 'leadership', 'problem solving', 'project management', 'research', 'analysis', 'negotiation'}
 
 # --- Utility Functions ---
-
 def extract_text_from_pdf(cv_path: str) -> str:
     """Extract raw text from PDF using pdfplumber for high accuracy."""
     text = ""
@@ -66,7 +64,6 @@ def generate_hash(content: str) -> str:
     return hashlib.md5(content.encode('utf-8')).hexdigest()
 
 # --- Core Extraction Functions ---
-
 def detect_profession(lines: List[str]) -> Tuple[str, Set[str]]:
     """Detect the dominant profession based on keyword frequency."""
     keyword_counts = Counter()
@@ -249,7 +246,6 @@ def extract_projects(lines: List[str]) -> List[str]:
     return projects if projects else ["Not found"]
 
 # --- Main Processing Function ---
-
 def process_cv(cv_path: str) -> Dict:
     """Process the CV and return a clean, deduplicated result."""
     text = extract_text_from_pdf(cv_path)
@@ -271,26 +267,72 @@ def process_cv(cv_path: str) -> Dict:
     }
     return result
 
-# --- Flask API Endpoint ---
+# --- Flask API Setup ---
+app = Flask(__name__)
+CORS(app, resources={
+    r"/extract_cv": {
+        "origins": ["http://localhost:3000"],
+        "methods": ["POST"],
+        "allow_headers": ["Content-Type"]
+    }
+})
+
+# Configuration
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'pdf'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/extract_cv', methods=['POST'])
 def extract_cv():
     """Handle CV file upload and extraction."""
     if 'cv' not in request.files:
-        return jsonify({"error": "No CV file provided"}), 400
+        return jsonify({"error": "No file part in the request"}), 400
     
     cv_file = request.files['cv']
+    
     if cv_file.filename == '':
         return jsonify({"error": "No file selected"}), 400
     
-    cv_path = os.path.join("uploads", cv_file.filename)
-    os.makedirs("uploads", exist_ok=True)
-    cv_file.save(cv_path)
+    if not allowed_file(cv_file.filename):
+        return jsonify({"error": "Only PDF files are allowed"}), 400
     
-    result = process_cv(cv_path)
-    os.remove(cv_path)
-    
-    return jsonify(result)
+    try:
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        filename = secure_filename(cv_file.filename)
+        cv_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        cv_file.save(cv_path)
+        
+        result = process_cv(cv_path)
+        
+        if os.path.exists(cv_path):
+            os.remove(cv_path)
+        
+        return jsonify(result)
+        
+    except FileNotFoundError:
+        return jsonify({"error": "Upload directory not found"}), 500
+    except PermissionError:
+        return jsonify({"error": "Permission denied when saving file"}), 500
+    except Exception as e:
+        if 'cv_path' in locals() and os.path.exists(cv_path):
+            os.remove(cv_path)
+        return jsonify({"error": f"Error processing CV: {str(e)}"}), 500
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Simple health check endpoint"""
+    return jsonify({
+        "status": "healthy",
+        "service": "CV Processor",
+        "timestamp": datetime.now().isoformat()
+    }), 200
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

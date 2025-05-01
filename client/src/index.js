@@ -7,6 +7,7 @@ import Applicant from './Applicant';
 import RecruiterMain from './RecruiterMain';
 import Postjob from './Postjob';
 import JobCandidateQuestionnaire from './JobCandidateQuestionnaire';
+import ViewProfile from './ViewProfile';
 import './index.css';
 
 // ThemeProvider Component
@@ -51,7 +52,8 @@ root.render(
           <Route path="/Applicant" element={<Applicant />} />
           <Route path="/Recruiter" element={<RecruiterMain />} />
           <Route path="/Postjob" element={<Postjob />} />
-          <Route path="/PersonalityTest" element={<JobCandidateQuestionnaire />} />
+          <Route path="/JobCandidateQuestionnaire" element={<JobCandidateQuestionnaire />} />
+          <Route path="/view-profile" element={<ViewProfile />} />
         </Routes>
       </ThemeProvider>
     </BrowserRouter>

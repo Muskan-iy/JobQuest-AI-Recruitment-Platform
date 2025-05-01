@@ -4,7 +4,7 @@ import logo from './logo.png';
 import discussion from './discussion.png';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { loginUser, registerUser, requestPasswordReset, resetPassword } from './api'; 
+import { loginUser, registerUser } from './api'; 
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,30 +16,14 @@ const Login = () => {
     password: '',
     fullName: '',
     phoneNumber: '',
-    confirmPassword: '',
-    newPassword: ''
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [showResetPassword, setShowResetPassword] = useState(false);
-  const [resetToken, setResetToken] = useState('');
-  const [resetSuccess, setResetSuccess] = useState('');
-
-  // Extract token from URL if present
-  React.useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const token = queryParams.get('token');
-    if (token) {
-      setResetToken(token);
-      setShowResetPassword(true);
-    }
-  }, []);
 
   const switchTab = (tab) => {
     setActiveTab(tab);
     setError('');
-    setResetSuccess('');
   };
 
   const handleChange = (e) => {
@@ -54,7 +38,6 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setResetSuccess('');
 
     try {
       const { email, password } = formData;
@@ -62,12 +45,13 @@ const Login = () => {
       
       console.log('Login successful:', response);
       
+      // Navigate based on user type
       if (userType === 'applicant') {
         navigate('/applicant');
       } else if (userType === 'recruiter') {
         navigate('/recruiter');
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard'); // Fallback route
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -81,8 +65,8 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setResetSuccess('');
 
+    // Basic validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
@@ -99,8 +83,10 @@ const Login = () => {
 
       const response = await registerUser(userData);
       console.log('Registration successful:', response);
+      
+      // After successful registration, switch to login tab
       switchTab('login');
-      setResetSuccess('Registration successful! Please login.');
+      alert('Registration successful! Please login.');
     } catch (err) {
       console.error('Registration error:', err);
       setError(err.message || 'Registration failed');
@@ -109,44 +95,10 @@ const Login = () => {
     }
   };
 
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setResetSuccess('');
-
-    try {
-      await requestPasswordReset(formData.email.trim());
-      setResetSuccess('Password reset link sent to your email!');
-      setShowForgotPassword(false);
-    } catch (err) {
-      setError(err.message || 'Failed to send reset link');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePasswordReset = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setResetSuccess('');
-
-    try {
-      await resetPassword(resetToken, formData.newPassword.trim());
-      setResetSuccess('Password reset successfully! You can now login with your new password.');
-      setShowResetPassword(false);
-      setFormData(prev => ({ ...prev, newPassword: '' }));
-    } catch (err) {
-      setError(err.message || 'Failed to reset password');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className={styles['login-page']}>
       <div className={styles['login-main-container']}>
+        {/* Back button */}
         <button
           type="button"
           className={styles['login-back']}
@@ -155,6 +107,7 @@ const Login = () => {
           <i className="fas fa-arrow-left"></i>
         </button>
 
+        {/* Sidebar */}
         <div className={styles['login-sidebar']}>
           <img src={logo} alt="JobQuest Logo" className={styles['login-logo']} />
           <div className={styles['login-description']}>
@@ -163,6 +116,7 @@ const Login = () => {
           </div>
         </div>
 
+        {/* Form container */}
         <div className={styles['login-form-container']}>
           <div className={styles['login-tab-switch']}>
             <button
@@ -180,70 +134,9 @@ const Login = () => {
           </div>
 
           {error && <div className={styles['login-error']}>{error}</div>}
-          {resetSuccess && <div className={styles['login-success']}>{resetSuccess}</div>}
 
-          {showResetPassword ? (
-            <form className={styles['login-reset-form']} onSubmit={handlePasswordReset}>
-              <h2>Reset Password</h2>
-              <div className={styles['login-form-group']}>
-                <label>New Password</label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  placeholder="Enter new password"
-                  value={formData.newPassword}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <button 
-                type="submit" 
-                className={styles['login-btn']}
-                disabled={loading}
-              >
-                {loading ? 'Resetting...' : 'Reset Password'}
-              </button>
-              <button
-                type="button"
-                className={styles['login-cancel-btn']}
-                onClick={() => {
-                  setShowResetPassword(false);
-                  setResetToken('');
-                }}
-              >
-                Cancel
-              </button>
-            </form>
-          ) : showForgotPassword ? (
-            <form className={styles['login-forgot-form']} onSubmit={handleForgotPassword}>
-              <h2>Forgot Password</h2>
-              <div className={styles['login-form-group']}>
-                <label>Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <button 
-                type="submit" 
-                className={styles['login-btn']}
-                disabled={loading}
-              >
-                {loading ? 'Sending...' : 'Send Reset Link'}
-              </button>
-              <button
-                type="button"
-                className={styles['login-cancel-btn']}
-                onClick={() => setShowForgotPassword(false)}
-              >
-                Back to Login
-              </button>
-            </form>
-          ) : activeTab === 'login' ? (
+          {/* Login form */}
+          {activeTab === 'login' && (
             <form className={styles['login-login-form']} onSubmit={handleLogin}>
               <h2>Login</h2>
               <div className={styles['login-form-group']}>
@@ -272,7 +165,7 @@ const Login = () => {
                 <button
                   type="button"
                   className={styles['login-forgot-password']}
-                  onClick={() => setShowForgotPassword(true)}
+                  onClick={() => alert('Forgot password clicked')}
                 >
                   Forgot Password?
                 </button>
@@ -285,7 +178,10 @@ const Login = () => {
                 {loading ? 'Logging in...' : 'Login'}
               </button>
             </form>
-          ) : (
+          )}
+
+          {/* Signup form */}
+          {activeTab === 'signup' && (
             <form className={styles['login-signup-form']} onSubmit={handleSignup}>
               <h2>Sign up</h2>
               <div className={styles['login-form-group']}>

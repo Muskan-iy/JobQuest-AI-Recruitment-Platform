@@ -1,0 +1,133 @@
+{
+  "folders": [
+    {
+      "name": "Backend",
+      "path": "server/backend"
+    },
+    {
+      "name": "AI Module",
+      "path": "AI_Module"
+    },
+    {
+      "name": "Frontend",
+      "path": "client"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "",
+    "python.terminal.activateEnvironment": true,
+    
+    // Environment file configuration
+    "python.envFile": "${workspaceFolder:Backend}/.env",
+    
+    // Frontend environment variables support
+    "vscode-react-native.envFile": "${workspaceFolder:Frontend}/.env",
+    
+    // Workspace-specific settings
+    "[python]": {
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+      },
+      "editor.formatOnSave": true
+    },
+    
+    // File exclusion patterns
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/.vscode": true,
+      "**/*.pyc": true,
+      // Show .env files in explorer but keep them protected
+      "**/.env": false
+    },
+    
+    // Frontend-specific settings
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ],
+    "emmet.includeLanguages": {
+      "javascript": "javascriptreact"
+    }
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch Backend",
+        "type": "python",
+        "request": "launch",
+        "module": "flask",
+        "python": "${workspaceFolder:Backend}/venv/Scripts/python.exe",
+        "args": [
+          "run",
+          "--port=5000"
+        ],
+        "jinja": true,
+        "env": {
+          "FLASK_APP": "app.py",
+          "FLASK_ENV": "development"
+        },
+        "envFile": "${workspaceFolder:Backend}/.env"
+      },
+      {
+        "name": "Launch AI Module",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder:AI_Module}/main.py",
+        "python": "${workspaceFolder:AI_Module}/venv/Scripts/python.exe",
+        "args": [
+          "--port=8000"
+        ],
+        "env": {
+          "UVICORN_RELOAD": "true"
+        },
+        "justMyCode": false,
+        "envFile": "${workspaceFolder:AI_Module}/.env"
+      },
+      {
+        "name": "Launch Frontend",
+        "type": "pwa-chrome",
+        "request": "launch",
+        "url": "http://localhost:3000",
+        "webRoot": "${workspaceFolder:Frontend}",
+        "preLaunchTask": "npm: start",
+        "envFile": "${workspaceFolder:Frontend}/.env"
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Launch All Services",
+        "configurations": [
+          "Launch Backend",
+          "Launch AI Module",
+          "Launch Frontend"
+        ],
+        "preLaunchTask": "full-install"
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "pip-install",
+        "type": "shell",
+        "command": "${workspaceFolder:Backend}/venv/Scripts/python.exe -m pip install -r requirements.txt && ${workspaceFolder:AI_Module}/venv/Scripts/python.exe -m pip install -r requirements.txt",
+        "problemMatcher": []
+      },
+      {
+        "label": "npm-install",
+        "type": "shell",
+        "command": "cd ${workspaceFolder:Frontend} && npm install",
+        "problemMatcher": []
+      },
+      {
+        "label": "full-install",
+        "dependsOn": ["pip-install", "npm-install"],
+        "problemMatcher": []
+      }
+    ]
+  }
+}
