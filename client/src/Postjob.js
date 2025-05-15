@@ -14,25 +14,29 @@ import {
   faSignOutAlt
 } from '@fortawesome/free-solid-svg-icons';
 import logo from './logo.png';
+import { postJob } from './api';
 
 const Postjob = () => {
-  const [skills, setSkills] = useState([]);
-  const [skillInput, setSkillInput] = useState('');
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    skills: [],
+    eq_requirement: '',
+    iq_requirement: '',
+  });
 
-  const handleAddSkill = () => {
-    if (skillInput.trim() && !skills.includes(skillInput)) {
-      setSkills([...skills, skillInput]);
-      setSkillInput('');
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove) => {
-    setSkills(skills.filter(skill => skill !== skillToRemove));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Job posted!");
+    try {
+      await postJob({
+        ...formData,
+        recruiter_id: localStorage.getItem('userId'),
+        skills: formData.skills.split(',').map(skill => skill.trim())
+      });
+      alert('Job posted successfully!');
+    } catch (error) {
+      console.error('Error posting job:', error);
+    }
   };
 
   return (
@@ -85,6 +89,8 @@ const Postjob = () => {
               placeholder="Enter job title" 
               className="postjob-form-input"
               required
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
             />
           </div>
 
@@ -167,6 +173,8 @@ const Postjob = () => {
               className="postjob-form-textarea"
               rows="5"
               required
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
             ></textarea>
           </div>
 
@@ -184,39 +192,22 @@ const Postjob = () => {
 
           {/* Skills */}
           <div className="postjob-form-group">
-            <label htmlFor="skills">Skills</label>
-            <div className="postjob-skills-container">
-              <input 
-                type="text" 
-                id="skills" 
-                placeholder="Add required skills (e.g., JavaScript, Python)" 
-                className="postjob-form-input"
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
-              />
-              <button 
-                type="button" 
-                className="postjob-add-skill-btn"
-                onClick={handleAddSkill}
-              >
-                Add Skill
-              </button>
-            </div>
-            <div className="postjob-skills-tags">
-              {skills.map((skill, index) => (
-                <div key={index} className="postjob-skill-tag">
-                  {skill}
-                  <button 
-                    type="button" 
-                    className="postjob-remove-skill"
-                    onClick={() => handleRemoveSkill(skill)}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
+            <label>Required Skills (comma separated)</label>
+            <input 
+              type="text" 
+              value={formData.skills}
+              onChange={(e) => setFormData({...formData, skills: e.target.value})}
+            />
+          </div>
+
+          {/* Minimum EQ Requirement */}
+          <div className="postjob-form-group">
+            <label>Minimum EQ Requirement</label>
+            <input 
+              type="number" 
+              value={formData.eq_requirement}
+              onChange={(e) => setFormData({...formData, eq_requirement: e.target.value})}
+            />
           </div>
 
           {/* Last Date */}

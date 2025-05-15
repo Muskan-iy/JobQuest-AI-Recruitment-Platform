@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const API_BASE = 'http://localhost:5001';
 const AI_BASE = 'http://localhost:5000';
 
@@ -85,4 +87,28 @@ export const saveProfile = async (profileData, token) => {
     body: JSON.stringify(profileData)
   });
   return handleResponse(response);
+};
+
+export const postJob = async (jobData) => {
+  const response = await axios.post('/api/jobs', jobData);
+  return response.data;
+};
+
+export const uploadCV = async (formData) => {
+  const response = await axios.post('/api/candidates', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return response.data;
+};
+
+export const saveTestResults = async (testData) => {
+  const response = await axios.post('/api/tests', testData);
+  return response.data;
+};
+
+export const getJobMatches = async (candidateId) => {
+  const response = await axios.get(`/api/matches/${candidateId}`);
+  return response.data;
 };

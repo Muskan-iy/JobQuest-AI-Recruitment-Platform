@@ -1,11 +1,25 @@
 import React, { useState } from "react";
 import "./JobCandidateQuestionnaire.css";
+import { saveTestResults } from "./api";
+
+// Define scoring functions (replace with your actual logic)
+const calculateEQScore = (answers) => {
+  // Example: Sum all EQ-related answers
+  return Object.values(answers).reduce((sum, val) => sum + (val.eq || 0), 0);
+};
+
+const calculateIQScore = (answers) => {
+  // Example: Sum all IQ-related answers
+  return Object.values(answers).reduce((sum, val) => sum + (val.iq || 0), 0);
+};
 
 const JobCandidateQuestionnaire = () => {
-  const [responses, setResponses] = useState({});
+  const [answers, setAnswers] = useState({});
+  const [testCompleted, setTestCompleted] = useState(false);
+  const [scores, setScores] = useState({ eq: 0, iq: 0 });
 
   const handleInputChange = (section, questionId, value) => {
-    setResponses((prev) => ({
+    setAnswers((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
@@ -14,10 +28,21 @@ const JobCandidateQuestionnaire = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Responses:", responses);
-    alert("Thank you for completing the questionnaire!");
+  const handleSubmit = async () => {
+    const eqScore = calculateEQScore(answers);
+    const iqScore = calculateIQScore(answers);
+    setScores({ eq: eqScore, iq: iqScore });
+    
+    try {
+      await saveTestResults({
+        candidate_id: localStorage.getItem('userId'),
+        eq_score: eqScore,
+        iq_score: iqScore
+      });
+      setTestCompleted(true);
+    } catch (error) {
+      console.error('Error saving test results:', error);
+    }
   };
 
   // Personality Questions (Big Five Personality Traits)
@@ -119,94 +144,102 @@ const JobCandidateQuestionnaire = () => {
   return (
     <div className="questionnaire-container">
       <h1 className="questionnaire-title">Job Candidate Questionnaire</h1>
-      <form className="questionnaire-form" onSubmit={handleSubmit}>
-        {/* Personality Questions */}
-        <h2 className="questionnaire-section-title">Personality Questions</h2>
-        {Object.keys(personalityQuestions).map((section) => (
-          <div key={section} className={`questionnaire-section ${section}`}>
-            <h3 className="questionnaire-subtitle">{section.charAt(0).toUpperCase() + section.slice(1)}</h3>
-            {personalityQuestions[section].map((question) => (
-              <div key={question.id} className="question-item">
-                <p className="question-text">{question.question}</p>
-                {question.options.map((option) => (
-                  <label key={option} className="question-option">
-                    <input
-                      type="radio"
-                      name={`${section}-${question.id}`}
-                      value={option}
-                      onChange={() => handleInputChange("personality", question.id, option)}
-                      className="radio-input"
-                    />
-                    {option}
-                  </label>
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
+      {testCompleted ? (
+        <div className="results">
+          <h2>Your Results</h2>
+          <p>EQ Score: {scores.eq}</p>
+          <p>IQ Score: {scores.iq}</p>
+        </div>
+      ) : (
+        <form className="questionnaire-form" onSubmit={handleSubmit}>
+          {/* Personality Questions */}
+          <h2 className="questionnaire-section-title">Personality Questions</h2>
+          {Object.keys(personalityQuestions).map((section) => (
+            <div key={section} className={`questionnaire-section ${section}`}>
+              <h3 className="questionnaire-subtitle">{section.charAt(0).toUpperCase() + section.slice(1)}</h3>
+              {personalityQuestions[section].map((question) => (
+                <div key={question.id} className="question-item">
+                  <p className="question-text">{question.question}</p>
+                  {question.options.map((option) => (
+                    <label key={option} className="question-option">
+                      <input
+                        type="radio"
+                        name={`${section}-${question.id}`}
+                        value={option}
+                        onChange={() => handleInputChange("personality", question.id, option)}
+                        className="radio-input"
+                      />
+                      {option}
+                    </label>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
 
-        {/* EQ Questions */}
-        <h2 className="questionnaire-section-title">Emotional Intelligence (EQ)</h2>
-        {eqQuestions.map((question) => (
-          <div key={question.id} className="question-item">
-            <p className="question-text">{question.question}</p>
-            {question.options.map((option) => (
-              <label key={option} className="question-option">
-                <input
-                  type="radio"
-                  name={`eq-${question.id}`}
-                  value={option}
-                  onChange={() => handleInputChange("eq", question.id, option)}
-                  className="radio-input"
-                />
-                {option}
-              </label>
-            ))}
-          </div>
-        ))}
+          {/* EQ Questions */}
+          <h2 className="questionnaire-section-title">Emotional Intelligence (EQ)</h2>
+          {eqQuestions.map((question) => (
+            <div key={question.id} className="question-item">
+              <p className="question-text">{question.question}</p>
+              {question.options.map((option) => (
+                <label key={option} className="question-option">
+                  <input
+                    type="radio"
+                    name={`eq-${question.id}`}
+                    value={option}
+                    onChange={() => handleInputChange("eq", question.id, option)}
+                    className="radio-input"
+                  />
+                  {option}
+                </label>
+              ))}
+            </div>
+          ))}
 
-        {/* IQ Questions */}
-        <h2 className="questionnaire-section-title">Intelligence Quotient (IQ)</h2>
-        {iqQuestions.map((question) => (
-          <div key={question.id} className="question-item">
-            <p className="question-text">{question.question}</p>
-            {question.options.map((option) => (
-              <label key={option} className="question-option">
-                <input
-                  type="radio"
-                  name={`iq-${question.id}`}
-                  value={option}
-                  onChange={() => handleInputChange("iq", question.id, option)}
-                  className="radio-input"
-                />
-                {option}
-              </label>
-            ))}
-          </div>
-        ))}
+          {/* IQ Questions */}
+          <h2 className="questionnaire-section-title">Intelligence Quotient (IQ)</h2>
+          {iqQuestions.map((question) => (
+            <div key={question.id} className="question-item">
+              <p className="question-text">{question.question}</p>
+              {question.options.map((option) => (
+                <label key={option} className="question-option">
+                  <input
+                    type="radio"
+                    name={`iq-${question.id}`}
+                    value={option}
+                    onChange={() => handleInputChange("iq", question.id, option)}
+                    className="radio-input"
+                  />
+                  {option}
+                </label>
+              ))}
+            </div>
+          ))}
 
-        {/* Situational Questions */}
-        <h2 className="questionnaire-section-title">Situational Questions</h2>
-        {situationalQuestions.map((question) => (
-          <div key={question.id} className="question-item">
-            <p className="question-text">{question.question}</p>
-            {question.options.map((option) => (
-              <label key={option} className="question-option">
-                <input
-                  type="radio"
-                  name={`situational-${question.id}`}
-                  value={option}
-                  onChange={() => handleInputChange("situational", question.id, option)}
-                  className="radio-input"
-                />
-                {option}
-              </label>
-            ))}
-          </div>
-        ))}
+          {/* Situational Questions */}
+          <h2 className="questionnaire-section-title">Situational Questions</h2>
+          {situationalQuestions.map((question) => (
+            <div key={question.id} className="question-item">
+              <p className="question-text">{question.question}</p>
+              {question.options.map((option) => (
+                <label key={option} className="question-option">
+                  <input
+                    type="radio"
+                    name={`situational-${question.id}`}
+                    value={option}
+                    onChange={() => handleInputChange("situational", question.id, option)}
+                    className="radio-input"
+                  />
+                  {option}
+                </label>
+              ))}
+            </div>
+          ))}
 
-        <button type="submit" className="submit-button">Submit</button>
-      </form>
+          <button type="submit" className="submit-button">Submit</button>
+        </form>
+      )}
     </div>
   );
 };

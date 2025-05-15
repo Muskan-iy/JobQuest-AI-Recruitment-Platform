@@ -7,6 +7,7 @@ import PAT1 from "./PAT1.png";
 import Browse from "./Browse.png";
 import SF from "./SF.png";
 import Preloader1 from "./Preloader1";
+import { uploadCV } from "./api";
 
 const Applicant = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -14,6 +15,7 @@ const Applicant = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeJob, setActiveJob] = useState(null);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [cvFile, setCvFile] = useState(null);
 
   const jobsSectionRef = useRef(null);
   const searchBarRef = useRef(null);
@@ -49,6 +51,25 @@ const Applicant = () => {
   const handleNotificationsClick = () => {
     // Notification functionality here
     console.log("Notifications clicked");
+  };
+
+  const handleFileChange = (e) => {
+    setCvFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    if (!cvFile) return;
+    
+    const formData = new FormData();
+    formData.append('cv', cvFile);
+    formData.append('name', localStorage.getItem('userName'));
+
+    try {
+      await uploadCV(formData);
+      alert('CV uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading CV:', error);
+    }
   };
 
   if (isLoading) {
@@ -292,6 +313,12 @@ const Applicant = () => {
                 </button>
               </div>
             )}
+          </div>
+
+          <div className="cv-upload-section">
+            <h3>Upload Your CV</h3>
+            <input type="file" onChange={handleFileChange} accept=".pdf,.doc,.docx" />
+            <button onClick={handleUpload}>Upload CV</button>
           </div>
         </div>
 

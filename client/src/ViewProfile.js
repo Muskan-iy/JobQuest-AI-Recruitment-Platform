@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { extractCV } from './api';
+import { extractCV, getJobMatches } from './api';
 import './ViewProfile.css';
 
 const ViewProfile = () => {
@@ -11,6 +11,7 @@ const ViewProfile = () => {
   const [userName, setUserName] = useState('');
   const fileInputRef = useRef();
   const navigate = useNavigate();
+  const [matches, setMatches] = useState([]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -46,6 +47,18 @@ const ViewProfile = () => {
       fileInputRef.current.value = '';
     }
   };
+
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const response = await getJobMatches(localStorage.getItem('userId'));
+        setMatches(response.matches);
+      } catch (error) {
+        console.error('Error fetching matches:', error);
+      }
+    };
+    fetchMatches();
+  }, []);
 
   return (
     <div className="viewProfilePageContainer">
@@ -184,6 +197,18 @@ const ViewProfile = () => {
           </div>
         </div>
       )}
+
+      <div className="matches-section">
+        <h3>Job Matches</h3>
+        {matches.map(match => (
+          <div key={match.job_id} className="match-card">
+            <h4>{match.title}</h4>
+            <p>Match Score: {match.match_score.toFixed(1)}%</p>
+            <p>EQ Requirement Met: {match.eq_match ? '✅' : '❌'}</p>
+            <p>IQ Requirement Met: {match.iq_match ? '✅' : '❌'}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
