@@ -1,0 +1,222 @@
+:root{
+  --error-color: #e74c3c;
+  --warning-color: #f39c12;
+  --success-color: #2ecc71;
+}
+.results-calculation-container {
+    font-family: 'Poppins', sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .results-calculation-title {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 700;
+  }
+  
+  .results-calculation-subtitle {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  /* Overview Section */
+  .results-calculation-overview {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .results-calculation-overview-item {
+    margin-bottom: 15px;
+  }
+  
+  .results-calculation-overview-item h3 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+  }
+  
+  .results-calculation-progress {
+    height: 10px;
+    background-color: #ecf0f1;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    position: relative;
+  }
+  
+  .results-calculation-progress-bar {
+    height: 100%;
+    border-radius: 5px;
+    background-color: #3498db;
+    transition: width 0.5s ease;
+  }
+  
+  /* Sections */
+  .results-calculation-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .results-calculation-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .results-calculation-section h3 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .results-calculation-completion {
+    color: #7f8c8d;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+  }
+  
+  /* Personality Traits */
+  .results-calculation-traits {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  
+  .results-calculation-trait {
+    margin-bottom: 15px;
+  }
+  
+  .results-calculation-trait h4 {
+    font-size: 1rem;
+    color: #2c3e50;
+    margin-bottom: 5px;
+    text-transform: capitalize;
+  }
+  
+  /* EQ Circular Progress */
+  .results-calculation-progress-circle {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .results-calculation-circular-chart {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .results-calculation-circle-bg {
+    fill: none;
+    stroke: #ecf0f1;
+    stroke-width: 3;
+  }
+  
+  .results-calculation-circle {
+    fill: none;
+    stroke: #3498db;
+    stroke-width: 3;
+    stroke-linecap: round;
+    animation: results-calculation-circle-fill 1.5s ease-in-out;
+  }
+  
+  @keyframes results-calculation-circle-fill {
+    0% { stroke-dasharray: 0, 100; }
+  }
+  
+  .results-calculation-circle-text {
+    font-size: 0.4em;
+    text-anchor: middle;
+    fill: #2c3e50;
+    font-weight: bold;
+  }
+  
+  .results-calculation-feedback {
+    text-align: center;
+    font-style: italic;
+    color: #7f8c8d;
+  }
+  
+  /* IQ Meter */
+  .results-calculation-iq-meter {
+    height: 20px;
+    background: linear-gradient(to right, #e74c3c, #f39c12, #2ecc71, #3498db);
+    border-radius: 10px;
+    position: relative;
+    margin: 30px 0;
+  }
+  
+  .results-calculation-iq-indicator {
+    position: absolute;
+    top: -10px;
+    width: 4px;
+    height: 40px;
+    background-color: #2c3e50;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+  
+  .results-calculation-iq-indicator::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    width: 14px;
+    height: 14px;
+    background-color: #2c3e50;
+    border-radius: 50%;
+  }
+  
+  .results-calculation-iq-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+  }
+  
+  /* Situational Feedback */
+  .results-calculation-situation-feedback ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .results-calculation-situation-feedback li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .results-calculation-sections {
+      grid-template-columns: 1fr;
+    }
+    
+    .results-calculation-traits {
+      grid-template-columns: 1fr;
+    }
+    
+    .results-calculation-container {
+      padding: 15px;
+    }
+    
+    .results-calculation-title {
+      font-size: 1.6rem;
+    }
+  }

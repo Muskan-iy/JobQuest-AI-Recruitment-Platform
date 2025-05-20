@@ -6,8 +6,11 @@ import Login from './Login';
 import Applicant from './Applicant';
 import RecruiterMain from './RecruiterMain';
 import Postjob from './Postjob';
+import TechnicalTestMain from './TechnicalTestMain';
 import JobCandidateQuestionnaire from './JobCandidateQuestionnaire';
+import TechResults from './TechResults';
 import ViewProfile from './ViewProfile';
+import Shortlisted from './Shortlisted';
 import './index.css';
 
 // ThemeProvider Component
@@ -54,6 +57,9 @@ root.render(
           <Route path="/Postjob" element={<Postjob />} />
           <Route path="/JobCandidateQuestionnaire" element={<JobCandidateQuestionnaire />} />
           <Route path="/view-profile" element={<ViewProfile />} />
+          <Route path="/Shortlisted" element={<Shortlisted />} />
+          <Route path="/technical-test/:jobId" element={<TechnicalTestMain />} />
+          <Route path="/test-results/:jobId" element={<TechResults />} />
         </Routes>
       </ThemeProvider>
     </BrowserRouter>

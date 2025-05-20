@@ -5,8 +5,9 @@ import datetime
 import jwt
 from functools import wraps
 import os
-from models import users_collection, profiles_collection
+from models import users_collection, profiles_collection, Job, Candidate, TestResult
 from config import Config
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -152,6 +153,78 @@ def user_profile(current_user):
         },
         'profile': profile if profile else None
     }), 200
+
+@app.route('/api/jobs', methods=['POST'])
+def create_job():
+    data = request.get_json()
+    new_job = Job(
+        title=data['title'],
+        description=data['description'],
+        required_skills=data['skills'],
+        eq_requirement=data['eq_requirement'],
+        iq_requirement=data['iq_requirement'],
+        recruiter_id=data['recruiter_id']
+    )
+    db.session.add(new_job)
+    db.session.commit()
+    return jsonify({'message': 'Job created successfully'}), 201
+
+@app.route('/api/candidates', methods=['POST'])
+def upload_cv():
+    cv_file = request.files['cv']
+    # Process CV to extract skills (you'll need a CV parser library)
+    skills = extract_skills_from_cv(cv_file)
+    
+    new_candidate = Candidate(
+        name=request.form['name'],
+        cv_path=save_cv_file(cv_file),
+        skills=skills
+    )
+    db.session.add(new_candidate)
+    db.session.commit()
+    return jsonify({'message': 'CV processed successfully'}), 201
+
+@app.route('/api/tests', methods=['POST'])
+def save_test_results():
+    data = request.get_json()
+    new_result = TestResult(
+        candidate_id=data['candidate_id'],
+        eq_score=data['eq_score'],
+        iq_score=data['iq_score']
+    )
+    db.session.add(new_result)
+    db.session.commit()
+    
+    # Update candidate's scores
+    candidate = Candidate.query.get(data['candidate_id'])
+    candidate.eq_score = data['eq_score']
+    candidate.iq_score = data['iq_score']
+    db.session.commit()
+    
+    return jsonify({'message': 'Test results saved successfully'}), 201
+
+@app.route('/api/matches/<int:candidate_id>', methods=['GET'])
+def get_matches(candidate_id):
+    candidate = Candidate.query.get_or_404(candidate_id)
+    jobs = Job.query.all()
+    
+    matches = []
+    for job in jobs:
+        # Basic matching logic (can be enhanced)
+        skill_match = len(set(candidate.skills) & set(job.required_skills)) / len(job.required_skills)
+        eq_match = candidate.eq_score >= job.eq_requirement if job.eq_requirement else True
+        iq_match = candidate.iq_score >= job.iq_requirement if job.iq_requirement else True
+        
+        if skill_match > 0.5 and eq_match and iq_match:
+            matches.append({
+                'job_id': job.id,
+                'title': job.title,
+                'match_score': skill_match * 100,
+                'eq_match': eq_match,
+                'iq_match': iq_match
+            })
+    
+    return jsonify({'matches': matches})
 
 if __name__ == '__main__':
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)

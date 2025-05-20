@@ -1,0 +1,364 @@
+/* Shortlisted Candidates Page */
+.shortlisted-container {
+  max-width: 2000px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  flex: 1;
+}
+
+.shortlisted-header {
+  margin-bottom: 2rem;
+}
+
+.shortlisted-header h1 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.shortlisted-header p {
+  color: var(--text-color);
+  opacity: 0.8;
+  font-size: 1.1rem;
+}
+
+/* Job Tabs */
+.job-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 0.5rem;
+  overflow-x: auto;
+}
+
+.job-tab {
+  background: var(--glass-bg-solid);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px 8px 0 0;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.job-tab:hover {
+  background: var(--secondary-color);
+}
+
+.job-tab.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.applicant-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.1rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+/* Job Details */
+.job-details {
+  background: var(--glass-bg-solid);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.job-info {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.job-info h2 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.posted-date {
+  color: var(--text-color);
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+.view-all-btn {
+  background: var(--secondary-color);
+  color: var(--text-color);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Applicants List */
+.applicants-list {
+  padding: 1rem;
+}
+
+.applicant-card {
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  background: var(--glass-bg-solid);
+}
+
+.applicant-card:hover {
+  border-color: var(--primary-color);
+}
+
+.applicant-card.expanded {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 1px var(--primary-color);
+}
+
+.applicant-summary {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  cursor: pointer;
+  gap: 1rem;
+}
+
+.applicant-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.applicant-main-info {
+  flex-grow: 1;
+}
+
+.applicant-main-info h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.applicant-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  flex-wrap: wrap;
+}
+
+.experience {
+  color: var(--text-color);
+}
+
+.status {
+  padding: 0.1rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status.ai {
+  background: var(--secondary-color);
+  color: var(--text-color);
+}
+
+.status.manual {
+  background: var(--accent-color);
+  color: var(--text-color);
+}
+
+.match-score {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.score-bar {
+  height: 6px;
+  background: var(--primary-color);
+  border-radius: 3px;
+  width: 0;
+  transition: width 0.5s ease;
+}
+
+.applicant-skills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.skill-tag {
+  background: var(--secondary-color);
+  color: var(--text-color);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+}
+
+/* Expanded Details */
+.applicant-details {
+  padding: 1rem;
+  border-top: 1px solid var(--glass-border);
+  background: var(--glass-bg-solid);
+}
+
+.applicant-bio {
+  margin: 0 0 1rem 0;
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+.applicant-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.view-cv-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.save-btn {
+  background: var(--secondary-color);
+  color: var(--text-color);
+}
+
+.remove-btn {
+  background: var(--glass-bg-solid);
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Footer */
+.shortlisted-footer {
+  background-color: var(--glass-bg-solid);
+  border-top: 1px solid var(--glass-border);
+  padding: 20px 0;
+  margin-top: 40px;
+  width: 100%;
+}
+
+.shortlisted-footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.shortlisted-footer p {
+  color: var(--light-text);
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .applicant-summary {
+    flex-wrap: wrap;
+  }
+  
+  .applicant-skills {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .applicant-meta {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .applicant-actions {
+    flex-wrap: wrap;
+  }
+  
+  .action-btn {
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .job-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .view-all-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .shortlisted-container {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .job-tabs {
+    flex-wrap: wrap;
+  }
+
+  .job-tab {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .shortlisted-footer {
+    padding: 15px 0;
+  }
+}

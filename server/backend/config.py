@@ -8,6 +8,7 @@ class Config:
     MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
     DB_NAME = os.getenv("DB_NAME", "auth_db") 
     
+    
     # Authentication
     SECRET_KEY = os.getenv("SECRET_KEY") 
     TOKEN_EXPIRE_MINUTES = int(os.getenv("TOKEN_EXPIRE_MINUTES", 1440)) 
@@ -20,6 +21,7 @@ class Config:
     UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
     ALLOWED_EXTENSIONS = {'pdf'}
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+    TOKEN_EXPIRE_MINUTES = 30
     
     # CORS
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
