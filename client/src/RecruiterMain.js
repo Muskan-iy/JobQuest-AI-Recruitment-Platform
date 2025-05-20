@@ -1,30 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
 import "./RecruiterMain.css";
-import Preloader from "./Preloader"; 
+import Preloader from "./Preloader";
 import logo from "./logo.png";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Applicants from "./Applicants.png";
 import Post from "./Post.png";
 import Shortlist from "./Shortlist.png";
-import Shortlisted from "./Shortlisted";
+import axios from "axios"; // Added axios
 
 const RecruiterMain = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [applicants, setApplicants] = useState([]);
-  const [viewMode, setViewMode] = useState("all"); // 'all' or 'shortlisted'
+  const [viewMode, setViewMode] = useState("all");
   const [expandedApplicant, setExpandedApplicant] = useState(null);
   const applicantsSectionRef = useRef(null);
+  const navigate = useNavigate(); // Added for redirection
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 6000);
     
-    // Sample applicants data
     const sampleApplicants = [
-      { 
+      {
         id: 1,
-        name: "Safia Bakhtawar", 
+        name: "Safia Bakhtawar",
         position: "Frontend Developer",
         description: "3+ years experience with React and modern JavaScript",
         details: "Strong portfolio of responsive web applications. Proficient in React hooks, context API, and Redux.",
@@ -35,29 +35,29 @@ const RecruiterMain = () => {
         isShortlisted: false,
         isSaved: false
       },
-      { 
-        id: 2, 
-        name: "Yusra Bakhtawar", 
+      {
+        id: 2,
+        name: "Yusra Bakhtawar",
         position: "Frontend Developer",
-        description: "Specializes in responsive design", 
+        description: "Specializes in responsive design",
         status: "Reviewed",
-        details: "Expert in CSS animations", 
+        details: "Expert in CSS animations",
         cvUrl: "#",
-        appliedDate: "1 day ago", 
-        skills: ["CSS", "Accessibility"], 
+        appliedDate: "1 day ago",
+        skills: ["CSS", "Accessibility"],
         isShortlisted: true,
         isSaved: false
       },
-      { 
-        id: 3, 
-        name: "Muskan Iqbal", 
+      {
+        id: 3,
+        name: "Muskan Iqbal",
         position: "UX Designer",
-        description: "User-centered design specialist", 
+        description: "User-centered design specialist",
         status: "Interview",
-        details: "Designed award-winning interfaces", 
+        details: "Designed award-winning interfaces",
         cvUrl: "#",
-        appliedDate: "3 days ago", 
-        skills: ["Figma", "UI/UX"], 
+        appliedDate: "3 days ago",
+        skills: ["Figma", "UI/UX"],
         isShortlisted: false,
         isSaved: true
       }
@@ -67,8 +67,25 @@ const RecruiterMain = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handlelogout = async () => {
+    try {
+      await axios.post('http://localhost:5001/api/logout', {}, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      navigate('/login'); // Redirect to login page
+    } catch (error) {
+      console.error('Logout failed:', error.response?.data?.error || error.message);
+      alert('Failed to log out. Please try again.');
+    }
+  };
+
   const handleViewApplicantsClick = () => {
-    applicantsSectionRef.current.scrollIntoView({ 
+    applicantsSectionRef.current.scrollIntoView({
       behavior: "smooth",
       block: "start"
     });
@@ -76,7 +93,7 @@ const RecruiterMain = () => {
   };
 
   const handleViewShortlisted = () => {
-    applicantsSectionRef.current.scrollIntoView({ 
+    applicantsSectionRef.current.scrollIntoView({
       behavior: "smooth",
       block: "start"
     });
@@ -88,17 +105,17 @@ const RecruiterMain = () => {
   };
 
   const toggleShortlist = (applicantId) => {
-    setApplicants(applicants.map(applicant => 
-      applicant.id === applicantId 
-        ? { ...applicant, isShortlisted: !applicant.isShortlisted } 
+    setApplicants(applicants.map(applicant =>
+      applicant.id === applicantId
+        ? { ...applicant, isShortlisted: !applicant.isShortlisted }
         : applicant
     ));
   };
 
   const toggleSaveForLater = (applicantId) => {
-    setApplicants(applicants.map(applicant => 
-      applicant.id === applicantId 
-        ? { ...applicant, isSaved: !applicant.isSaved } 
+    setApplicants(applicants.map(applicant =>
+      applicant.id === applicantId
+        ? { ...applicant, isSaved: !applicant.isSaved }
         : applicant
     ));
   };
@@ -155,8 +172,12 @@ const RecruiterMain = () => {
           </button>
         </nav>
         <div className="recruiter-main-logout-container">
-          <button className="recruiter-main-menu-item recruiter-main-logout">
+          <button
+            className="recruiter-main-menu-item recruiter-main-logout"
+            onClick={handlelogout}
+          >
             <i className="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
           </button>
         </div>
       </div>
@@ -193,7 +214,7 @@ const RecruiterMain = () => {
               View candidates selected by our AI for further consideration.
             </p>
             <Link to="/Shortlisted">
-            <button className="recruiter-main-btn">View Shortlisted</button>
+              <button className="recruiter-main-btn">View Shortlisted</button>
             </Link>
           </div>
           
@@ -205,8 +226,8 @@ const RecruiterMain = () => {
             <p>
               Browse all applicants across all positions.
             </p>
-            <button 
-              className="recruiter-main-btn" 
+            <button
+              className="recruiter-main-btn"
               onClick={handleViewApplicantsClick}
             >
               View Applicants
@@ -248,8 +269,8 @@ const RecruiterMain = () => {
 
           <div className="recruiter-applicant-list-simple">
             {filteredApplicants.map((applicant) => (
-              <div 
-                key={applicant.id} 
+              <div
+                key={applicant.id}
                 className={`recruiter-applicant-item-simple ${expandedApplicant === applicant.id ? 'expanded' : ''}`}
                 onClick={() => toggleApplicantExpansion(applicant.id)}
               >
@@ -269,7 +290,7 @@ const RecruiterMain = () => {
                         </div>
                       )}
                       <div className="applicant-actions">
-                        <button 
+                        <button
                           className={`action-btn save-btn ${applicant.isSaved ? 'saved' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -279,7 +300,7 @@ const RecruiterMain = () => {
                           <i className={`fas ${applicant.isSaved ? 'fa-bookmark' : 'fa-bookmark'}`}></i>
                           {applicant.isSaved ? 'Saved' : 'Save for later'}
                         </button>
-                        <button 
+                        <button
                           className={`action-btn shortlist-btn ${applicant.isShortlisted ? 'shortlisted' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -289,7 +310,7 @@ const RecruiterMain = () => {
                           <i className={`fas ${applicant.isShortlisted ? 'fa-star' : 'fa-star'}`}></i>
                           {applicant.isShortlisted ? 'Shortlisted' : 'Add to shortlist'}
                         </button>
-                        <button 
+                        <button
                           className="action-btn view-cv-btn"
                           onClick={(e) => {
                             e.stopPropagation();

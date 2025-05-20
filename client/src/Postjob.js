@@ -20,6 +20,7 @@ const Postjob = () => {
   const [skills, setSkills] = useState([]);
   const [skillInput, setSkillInput] = useState('');
   const [activeStep, setActiveStep] = useState(1);
+  const [error, setError] = useState(null); // Added error state
   const [formData, setFormData] = useState({
     jobTitle: '',
     company: '',
@@ -28,13 +29,16 @@ const Postjob = () => {
     jobType: '',
     description: '',
     qualifications: '',
-    lastDate: ''
+    lastDate: '',
+    eq_requirement: '',
+    iq_requirement: ''
   });
 
   const handleAddSkill = () => {
     if (skillInput.trim() && !skills.includes(skillInput)) {
       setSkills([...skills, skillInput]);
       setSkillInput('');
+      setError(null); // Clear error when adding a skill
     }
   };
 
@@ -51,27 +55,30 @@ const Postjob = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (skills.length === 0) {
-    alert('Please add at least one skill');
-    return;
-  }
-  try {
-    await postJob({
+    e.preventDefault();
+    if (skills.length === 0) {
+      setError('Please add at least one skill');
+      return;
+    }
+    const jobData = {
       title: formData.jobTitle,
       description: formData.description,
-      required_skills: skills.join(','), // Convert array to comma-separated string
-      eq_requirement: '',
-      iq_requirement: '',
-      recruiter_id: localStorage.getItem('userId')
-    });
-    setActiveStep(4);
-    alert('Job posted successfully!');
-  } catch (error) {
-    console.error('Error posting job:', error);
-    alert('Failed to post job: ' + (error.response?.data?.error || 'Unknown error'));
-  }
-};
+      required_skills: skills.join(','), // Comma-separated string
+      eq_requirement: formData.eq_requirement || '',
+      iq_requirement: formData.iq_requirement || ''
+    };
+    console.log('Sending job data:', jobData); // Debug payload
+    try {
+      await postJob(jobData);
+      setError(null);
+      setActiveStep(4);
+      alert('Job posted successfully!');
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Failed to post job';
+      setError(errorMessage);
+      console.error('Error posting job:', error);
+    }
+  };
 
   const nextStep = () => setActiveStep(prev => Math.min(prev + 1, 3));
   const prevStep = () => setActiveStep(prev => Math.max(prev - 1, 1));
@@ -106,7 +113,22 @@ const Postjob = () => {
               <Link to="/recruiter" className="postjob-btn primary">
                 View Dashboard
               </Link>
-              <button className="postjob-btn secondary" onClick={() => setActiveStep(1)}>
+              <button className="postjob-btn secondary" onClick={() => {
+                setFormData({
+                  jobTitle: '',
+                  company: '',
+                  workplaceType: '',
+                  jobLocation: '',
+                  jobType: '',
+                  description: '',
+                  qualifications: '',
+                  lastDate: '',
+                  eq_requirement: '',
+                  iq_requirement: ''
+                });
+                setSkills([]);
+                setActiveStep(1);
+              }}>
                 Post Another Job
               </button>
             </div>
@@ -139,6 +161,8 @@ const Postjob = () => {
             </div>
 
             <form className="postjob-form" onSubmit={handleSubmit}>
+              {error && <p className="error-message">{error}</p>} {/* Display error */}
+
               {/* Step 1: Job Details */}
               {activeStep === 1 && (
                 <div className="postjob-form-step">
@@ -276,6 +300,30 @@ const Postjob = () => {
                       value={formData.qualifications}
                       onChange={handleInputChange}
                       required
+                    ></textarea>
+                  </div>
+
+                  <div className="postjob-form-group">
+                    <label htmlFor="eq_requirement">Emotional Quotient Requirement</label>
+                    <textarea 
+                      id="eq_requirement" 
+                      placeholder="Specify EQ requirements (optional)..." 
+                      className="postjob-textarea"
+                      rows="3"
+                      value={formData.eq_requirement}
+                      onChange={handleInputChange}
+                    ></textarea>
+                  </div>
+
+                  <div className="postjob-form-group">
+                    <label htmlFor="iq_requirement">Intelligence Quotient Requirement</label>
+                    <textarea 
+                      id="iq_requirement" 
+                      placeholder="Specify IQ requirements (optional)..." 
+                      className="postjob-textarea"
+                      rows="3"
+                      value={formData.iq_requirement}
+                      onChange={handleInputChange}
                     ></textarea>
                   </div>
                 </div>

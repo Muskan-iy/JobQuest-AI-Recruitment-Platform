@@ -1,28 +1,22 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5001';
-const AI_BASE = 'http://localhost:5000';
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5001';
+const AI_BASE = process.env.REACT_APP_AI_BASE || 'http://localhost:5000';
 
-const handleResponse = async (response) => {
-  if (!response.ok) {
-    let errorData;
-    try {
-      errorData = await response.json();
-    } catch (e) {
-      errorData = { error: `Request failed with status ${response.status}` };
-    }
-    throw new Error(errorData.error || 'Request failed');
-  }
-  return await response.json();
+// Helper function to handle axios responses and errors
+const handleAxiosError = (error) => {
+  const errorMessage = error.response?.data?.error || error.message || 'Request failed';
+  console.error('API error:', errorMessage);
+  throw new Error(errorMessage);
 };
 
+// Extract CV (calls a separate AI service)
 export const extractCV = async (cvFile) => {
-  // Validate file
   if (!cvFile) {
     throw new Error('No file provided');
   }
 
-  if (cvFile.size > 5 * 1024 * 1024) { // 5MB limit
+  if (cvFile.size > 5 * 1024 * 1024) {
     throw new Error('File size exceeds 5MB limit');
   }
 
@@ -34,90 +28,168 @@ export const extractCV = async (cvFile) => {
   formData.append('cv', cvFile);
 
   try {
-    const response = await fetch(`${AI_BASE}/extract_cv`, {
-      method: 'POST',
-      body: formData,
-      // Don't set Content-Type header - let the browser set it with boundary
+    const response = await axios.post(`${AI_BASE}/extract_cv`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     });
-
-    return await handleResponse(response);
+    return response.data;
   } catch (error) {
-    console.error('Error in extractCV:', error);
-    throw new Error(error.message || 'Failed to process CV. Please try again.');
+    handleAxiosError(error);
   }
 };
 
-// Auth functions remain the same
+// Login user
 export const loginUser = async (email, password) => {
-  const response = await fetch(`${API_BASE}/api/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-    credentials: 'include'
-  });
-  return handleResponse(response);
+  try {
+    const response = await axios.post(`${API_BASE}/api/login`, { email, password }, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    });
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
 };
 
+// Register user
 export const registerUser = async (userData) => {
-  const response = await fetch(`${API_BASE}/api/signup`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(userData)
-  });
-  return handleResponse(response);
+  try {
+    const response = await axios.post(`${API_BASE}/api/signup`, userData, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    });
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
 };
 
+// Check backend health
 export const checkHealth = async () => {
-  const response = await fetch(`${API_BASE}/api/health`);
-  return handleResponse(response);
+  try {
+    const response = await axios.get(`${API_BASE}/api/health`);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
 };
 
-// New function to save profile to backend
+// Save profile
 export const saveProfile = async (profileData, token) => {
-  const response = await fetch(`${API_BASE}/api/profile`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(profileData)
-  });
-  return handleResponse(response);
+  if (!token) {
+    throw new Error('No authentication token provided');
+  }
+  try {
+    const response = await axios.post(`${API_BASE}/api/profile`, profileData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
 };
 
+// Post job
 export const postJob = async (jobData) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
   try {
     const response = await axios.post(`${API_BASE}/api/jobs`, jobData, {
       headers: {
         'Content-Type': 'application/json',
-      },
+        'Authorization': `Bearer ${token}`
+      }
     });
     return response.data;
   } catch (error) {
-    console.error('Error posting job:', error.response?.data || error.message);
-    throw error;
+    handleAxiosError(error);
   }
 };
 
+// Upload CV
 export const uploadCV = async (formData) => {
-  const response = await axios.post('${API/api/candidates', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  });
-  return response.data;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  try {
+    const response = await axios.post(`${API_BASE}/api/candidates`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
 };
 
+// Save test results
 export const saveTestResults = async (testData) => {
-  const response = await axios.post('/api/tests', testData);
-  return response.data;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  try {
+    const response = await axios.post(`${API_BASE}/api/tests`, testData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
 };
 
+// Get job matches
 export const getJobMatches = async (candidateId) => {
-  const response = await axios.get(`/api/matches/${candidateId}`);
-  return response.data;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  try {
+    const response = await axios.get(`${API_BASE}/api/matches/${candidateId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Logout user
+export const logoutUser = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  try {
+    const response = await axios.post(`${API_BASE}/api/logout`, {}, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
 };
