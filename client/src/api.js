@@ -90,12 +90,21 @@ export const saveProfile = async (profileData, token) => {
 };
 
 export const postJob = async (jobData) => {
-  const response = await axios.post('/api/jobs', jobData);
-  return response.data;
+  try {
+    const response = await axios.post(`${API_BASE}/api/jobs`, jobData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error posting job:', error.response?.data || error.message);
+    throw error;
+  }
 };
 
 export const uploadCV = async (formData) => {
-  const response = await axios.post('/api/candidates', formData, {
+  const response = await axios.post('${API/api/candidates', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }

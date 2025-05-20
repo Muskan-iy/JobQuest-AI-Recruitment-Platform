@@ -156,18 +156,29 @@ def user_profile(current_user):
 
 @app.route('/api/jobs', methods=['POST'])
 def create_job():
-    data = request.get_json()
-    new_job = Job(
-        title=data['title'],
-        description=data['description'],
-        required_skills=data['skills'],
-        eq_requirement=data['eq_requirement'],
-        iq_requirement=data['iq_requirement'],
-        recruiter_id=data['recruiter_id']
-    )
-    db.session.add(new_job)
-    db.session.commit()
-    return jsonify({'message': 'Job created successfully'}), 201
+    try:
+        data = request.get_json()
+        if not all(key in data for key in ['title', 'description', 'required_skills', 'eq_requirement', 'iq_requirement', 'recruiter_id']):
+            return jsonify({'error': 'Missing required fields'}), HTTPStatus.BAD_REQUEST
+
+        new_job = Job(
+            title=data['title'],
+            description=data['description'],
+            required_skills=data['required_skills'],
+            eq_requirement=data['eq_requirement'],
+            iq_requirement=data['iq_requirement'],
+            recruiter_id=data['recruiter_id']
+        )
+        db.session.add(new_job)
+        db.session.commit()
+        return jsonify({'message': 'Job created successfully'}), HTTPStatus.CREATED
+    except KeyError as e:
+        return jsonify({'error': f'Missing field: {str(e)}'}), HTTPStatus.BAD_REQUEST
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({'error': f'Database error: {str(e)}'}), HTTPStatus.INTERNAL_SERVER_ERROR
+    except Exception as e:
+        return jsonify({'error': f'Unexpected error: {str(e)}'}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 @app.route('/api/candidates', methods=['POST'])
 def upload_cv():

@@ -9,6 +9,7 @@ import SF from "./SF.png";
 import Preloader1 from "./Preloader1";
 import { uploadCV } from "./api";
 
+
 const Applicant = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState("tab1");
@@ -16,7 +17,7 @@ const Applicant = () => {
   const [activeJob, setActiveJob] = useState(null);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [cvFile, setCvFile] = useState(null);
-
+  const [error, setError] = useState(null); // Add error state
   const jobsSectionRef = useRef(null);
   const searchBarRef = useRef(null);
   const navigate = useNavigate();
@@ -40,6 +41,17 @@ const Applicant = () => {
   const handleSearchClick = () => {
     searchBarRef.current.scrollIntoView({ behavior: "smooth" });
   };
+
+  const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file && file.type === "application/pdf") {
+    setCvFile(file); // Use setCvFile instead of setSelectedFile
+    setError(null);
+  } else {
+    setError("Please select a PDF file");
+    event.target.value = null;
+  }
+};
 
   const toggleJobDetails = (index) => {
     setActiveJob(activeJob === index ? null : index);

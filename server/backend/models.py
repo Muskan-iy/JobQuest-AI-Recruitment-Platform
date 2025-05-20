@@ -22,11 +22,10 @@ class Job(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    required_skills = db.Column(db.JSON, nullable=False)  # List of required skills/tags
-    eq_requirement = db.Column(db.Integer)  # Required EQ level
-    iq_requirement = db.Column(db.Integer)  # Required IQ level
-    recruiter_id = db.Column(db.Integer, db.ForeignKey('recruiter.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    required_skills = db.Column(db.String(255)) # Likely a string
+    eq_requirement = db.Column(db.String(255), nullable=True)
+    iq_requirement = db.Column(db.String(255), nullable=True)
+    recruiter_id = db.Column(db.Integer, nullable=False)
 
 class Candidate(db.Model):
     id = db.Column(db.Integer, primary_key=True)

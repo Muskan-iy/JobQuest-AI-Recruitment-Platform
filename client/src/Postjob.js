@@ -12,14 +12,24 @@ import {
   faCheckCircle,
   faRocket
 } from '@fortawesome/free-solid-svg-icons';
-import logo from './logo.png';
 import { faUserTie } from '@fortawesome/free-solid-svg-icons';
+import logo from './logo.png';
 import { postJob } from './api';
 
 const Postjob = () => {
   const [skills, setSkills] = useState([]);
   const [skillInput, setSkillInput] = useState('');
   const [activeStep, setActiveStep] = useState(1);
+  const [formData, setFormData] = useState({
+    jobTitle: '',
+    company: '',
+    workplaceType: '',
+    jobLocation: '',
+    jobType: '',
+    description: '',
+    qualifications: '',
+    lastDate: ''
+  });
 
   const handleAddSkill = () => {
     if (skillInput.trim() && !skills.includes(skillInput)) {
@@ -32,19 +42,36 @@ const Postjob = () => {
     setSkills(skills.filter(skill => skill !== skillToRemove));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await postJob({
-        ...formData,
-        recruiter_id: localStorage.getItem('userId'),
-        skills: formData.skills.split(',').map(skill => skill.trim())
-      });
-      alert('Job posted successfully!');
-    } catch (error) {
-      console.error('Error posting job:', error);
-    }
+  const handleInputChange = (e) => {
+    const { id, name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [id || name]: value
+    }));
   };
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (skills.length === 0) {
+    alert('Please add at least one skill');
+    return;
+  }
+  try {
+    await postJob({
+      title: formData.jobTitle,
+      description: formData.description,
+      required_skills: skills.join(','), // Convert array to comma-separated string
+      eq_requirement: '',
+      iq_requirement: '',
+      recruiter_id: localStorage.getItem('userId')
+    });
+    setActiveStep(4);
+    alert('Job posted successfully!');
+  } catch (error) {
+    console.error('Error posting job:', error);
+    alert('Failed to post job: ' + (error.response?.data?.error || 'Unknown error'));
+  }
+};
 
   const nextStep = () => setActiveStep(prev => Math.min(prev + 1, 3));
   const prevStep = () => setActiveStep(prev => Math.max(prev - 1, 1));
@@ -108,8 +135,8 @@ const Postjob = () => {
             </div>
 
             <div className="postjob-illustration">
-            <FontAwesomeIcon icon={faUserTie} className="illustration-icon" />
-          </div>
+              <FontAwesomeIcon icon={faUserTie} className="illustration-icon" />
+            </div>
 
             <form className="postjob-form" onSubmit={handleSubmit}>
               {/* Step 1: Job Details */}
@@ -125,6 +152,8 @@ const Postjob = () => {
                       id="jobTitle" 
                       placeholder="e.g. Senior React Developer" 
                       className="postjob-input"
+                      value={formData.jobTitle}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -139,6 +168,8 @@ const Postjob = () => {
                       id="company" 
                       placeholder="Enter company name" 
                       className="postjob-input"
+                      value={formData.company}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -151,16 +182,30 @@ const Postjob = () => {
                           type="radio" 
                           name="workplaceType" 
                           value="remote" 
+                          checked={formData.workplaceType === 'remote'}
+                          onChange={handleInputChange}
                           required 
                         />
                         <span>Remote</span>
                       </label>
                       <label className="radio-option">
-                        <input type="radio" name="workplaceType" value="hybrid" />
+                        <input 
+                          type="radio" 
+                          name="workplaceType" 
+                          value="hybrid" 
+                          checked={formData.workplaceType === 'hybrid'}
+                          onChange={handleInputChange}
+                        />
                         <span>Hybrid</span>
                       </label>
                       <label className="radio-option">
-                        <input type="radio" name="workplaceType" value="onsite" />
+                        <input 
+                          type="radio" 
+                          name="workplaceType" 
+                          value="onsite" 
+                          checked={formData.workplaceType === 'onsite'}
+                          onChange={handleInputChange}
+                        />
                         <span>On-site</span>
                       </label>
                     </div>
@@ -176,6 +221,8 @@ const Postjob = () => {
                       id="jobLocation" 
                       placeholder="e.g. New York, NY or 'Remote'" 
                       className="postjob-input"
+                      value={formData.jobLocation}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
@@ -190,7 +237,13 @@ const Postjob = () => {
                       <FontAwesomeIcon icon={faBriefcase} className="input-icon" />
                       Job Type
                     </label>
-                    <select id="jobType" className="postjob-input" required>
+                    <select 
+                      id="jobType" 
+                      className="postjob-input" 
+                      value={formData.jobType}
+                      onChange={handleInputChange}
+                      required
+                    >
                       <option value="">Select job type</option>
                       <option value="full-time">Full-time</option>
                       <option value="part-time">Part-time</option>
@@ -207,6 +260,8 @@ const Postjob = () => {
                       placeholder="Describe the role and key responsibilities..." 
                       className="postjob-textarea"
                       rows="5"
+                      value={formData.description}
+                      onChange={handleInputChange}
                       required
                     ></textarea>
                   </div>
@@ -218,6 +273,8 @@ const Postjob = () => {
                       placeholder="List required qualifications and experience..." 
                       className="postjob-textarea"
                       rows="3"
+                      value={formData.qualifications}
+                      onChange={handleInputChange}
                       required
                     ></textarea>
                   </div>
@@ -272,6 +329,8 @@ const Postjob = () => {
                       type="date" 
                       id="lastDate" 
                       className="postjob-input"
+                      value={formData.lastDate}
+                      onChange={handleInputChange}
                       required
                     />
                   </div>
