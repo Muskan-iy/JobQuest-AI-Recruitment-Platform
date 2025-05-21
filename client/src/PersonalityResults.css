@@ -1,222 +1,354 @@
-:root{
-  --error-color: #e74c3c;
-  --warning-color: #f39c12;
-  --success-color: #2ecc71;
-}
+/* Ensure Poppins font and CSS variables are inherited from root */
 .results-calculation-container {
-    font-family: 'Poppins', sans-serif;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 30px;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  line-height: 1.6;
+}
+
+/* Sidebar (optional, mimicking JobCandidateQuestionnaire sidebar) */
+.results-calculation-sidebar {
+  background: var(--secondary-color);
+  color: white;
+  padding: 30px 20px;
+  height: 100vh;
+  width: 150px;
+  box-shadow: var(--shadow);
+}
+
+.results-calculation-sidebar h3 {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.results-calculation-sidebar p {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Main Content */
+.results-calculation-main {
+  padding: 40px;
+  grid-column: 2;
+}
+
+.results-calculation-title {
+  font-size: 2.2rem;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.results-calculation-subtitle {
+  font-size: 1.1rem;
+  color: var(--light-text);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Overview Section */
+.results-calculation-overview {
+  background: var(--glass-bg-solid);
+  border: 1px solid var(--glass-border);
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  box-shadow: var(--shadow);
+}
+
+.results-calculation-overview-item h3 {
+  font-size: 1.3rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.results-calculation-progress {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  margin-bottom: 5px;
+}
+
+.results-calculation-progress-bar {
+  height: 100%;
+  background: var(--accent-color);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Sections */
+.results-calculation-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.results-calculation-section {
+  background: var(--glass-bg-solid);
+  border: 1px solid var(--glass-border);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.results-calculation-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--hover-shadow);
+}
+
+.results-calculation-section h3 {
+  font-size: 1.3rem;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.results-calculation-completion,
+.results-calculation-accuracy {
+  color: var(--light-text);
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+}
+
+/* Personality Traits */
+.results-calculation-traits {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.results-calculation-trait h4 {
+  font-size: 1rem;
+  color: var(--text-color);
+  margin-bottom: 5px;
+  text-transform: capitalize;
+}
+
+/* EQ Circular Progress */
+.results-calculation-progress-circle {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.results-calculation-circular-chart {
+  width: 100px;
+  height: 100px;
+}
+
+.results-calculation-circle-bg {
+  fill: none;
+  stroke: var(--glass-border);
+  stroke-width: 3;
+}
+
+.results-calculation-circle {
+  fill: none;
+  stroke: var(--accent-color);
+  stroke-width: 3;
+  stroke-linecap: round;
+  animation: results-calculation-circle-fill 1.5s ease-in-out;
+}
+
+@keyframes results-calculation-circle-fill {
+  0% { stroke-dasharray: 0, 100; }
+}
+
+.results-calculation-circle-text {
+  font-size: 0.4em;
+  text-anchor: middle;
+  fill: var(--text-color);
+  font-weight: bold;
+}
+
+.results-calculation-feedback {
+  text-align: center;
+  font-style: italic;
+  color: var(--light-text);
+}
+
+/* IQ Meter */
+.results-calculation-iq-meter {
+  height: 20px;
+  background: linear-gradient(to right, var(--error-color), var(--warning-color), var(--success-color), var(--accent-color));
+  border-radius: 10px;
+  position: relative;
+  margin: 30px 0;
+  border: 1px solid var(--glass-border);
+}
+
+.results-calculation-iq-indicator {
+  position: absolute;
+  top: -10px;
+  width: 4px;
+  height: 40px;
+  background-color: var(--primary-color);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.results-calculation-iq-indicator::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 14px;
+  height: 14px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+}
+
+.results-calculation-iq-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: var(--light-text);
+}
+
+/* Situational Feedback */
+.results-calculation-situation-feedback ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.results-calculation-situation-feedback li {
+  margin-bottom: 10px;
+  padding: 15px;
+  background: var(--glass-bg-solid);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.results-calculation-situation-feedback li:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--hover-shadow);
+}
+
+/* Back Button */
+.back-to-questionnaire-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border: none;
+  background-color: var(--primary-color);
+  color: white;
+  border: 1px solid var(--primary-color);
+  display: block;
+  margin: 20px auto;
+}
+
+.back-to-questionnaire-btn:hover {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: var(--hover-shadow);
+}
+
+/* Footer */
+.results-calculation-footer {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  grid-column: 1 / -1;
+}
+
+.results-calculation-footer p {
+  margin: 0;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .results-calculation-container {
+    grid-template-columns: 1fr;
   }
-  
-  .results-calculation-title {
-    font-size: 2rem;
-    color: #2c3e50;
-    margin-bottom: 10px;
-    text-align: center;
-    font-weight: 700;
+
+  .results-calculation-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
   }
-  
-  .results-calculation-subtitle {
-    font-size: 1.1rem;
-    color: #7f8c8d;
-    margin-bottom: 30px;
-    text-align: center;
-  }
-  
-  /* Overview Section */
-  .results-calculation-overview {
-    background-color: #f8f9fa;
-    border-radius: 8px;
+
+  .results-calculation-main {
+    grid-column: 1;
     padding: 20px;
-    margin-bottom: 30px;
   }
-  
-  .results-calculation-overview-item {
-    margin-bottom: 15px;
-  }
-  
-  .results-calculation-overview-item h3 {
-    font-size: 1.2rem;
-    color: #2c3e50;
-    margin-bottom: 10px;
-  }
-  
-  .results-calculation-progress {
-    height: 10px;
-    background-color: #ecf0f1;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    position: relative;
-  }
-  
-  .results-calculation-progress-bar {
-    height: 100%;
-    border-radius: 5px;
-    background-color: #3498db;
-    transition: width 0.5s ease;
-  }
-  
-  /* Sections */
+
   .results-calculation-sections {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    grid-template-columns: 1fr;
   }
-  
-  .results-calculation-section {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .results-calculation-title {
+    font-size: 1.8rem;
   }
-  
-  .results-calculation-section h3 {
-    font-size: 1.3rem;
-    color: #2c3e50;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .results-calculation-completion {
-    color: #7f8c8d;
-    margin-bottom: 15px;
-    font-size: 0.95rem;
-  }
-  
-  /* Personality Traits */
-  .results-calculation-traits {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-  }
-  
-  .results-calculation-trait {
-    margin-bottom: 15px;
-  }
-  
-  .results-calculation-trait h4 {
+
+  .results-calculation-subtitle {
     font-size: 1rem;
-    color: #2c3e50;
-    margin-bottom: 5px;
-    text-transform: capitalize;
   }
-  
-  /* EQ Circular Progress */
-  .results-calculation-progress-circle {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
+
+  .results-calculation-traits {
+    grid-template-columns: 1fr;
   }
-  
-  .results-calculation-circular-chart {
-    width: 100px;
-    height: 100px;
+
+  .results-calculation-main {
+    padding: 15px;
   }
-  
-  .results-calculation-circle-bg {
-    fill: none;
-    stroke: #ecf0f1;
-    stroke-width: 3;
-  }
-  
-  .results-calculation-circle {
-    fill: none;
-    stroke: #3498db;
-    stroke-width: 3;
-    stroke-linecap: round;
-    animation: results-calculation-circle-fill 1.5s ease-in-out;
-  }
-  
-  @keyframes results-calculation-circle-fill {
-    0% { stroke-dasharray: 0, 100; }
-  }
-  
-  .results-calculation-circle-text {
-    font-size: 0.4em;
-    text-anchor: middle;
-    fill: #2c3e50;
-    font-weight: bold;
-  }
-  
-  .results-calculation-feedback {
-    text-align: center;
-    font-style: italic;
-    color: #7f8c8d;
-  }
-  
-  /* IQ Meter */
-  .results-calculation-iq-meter {
-    height: 20px;
-    background: linear-gradient(to right, #e74c3c, #f39c12, #2ecc71, #3498db);
-    border-radius: 10px;
-    position: relative;
-    margin: 30px 0;
-  }
-  
-  .results-calculation-iq-indicator {
-    position: absolute;
-    top: -10px;
-    width: 4px;
-    height: 40px;
-    background-color: #2c3e50;
-    transform: translateX(-50%);
-    z-index: 2;
-  }
-  
-  .results-calculation-iq-indicator::after {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    width: 14px;
-    height: 14px;
-    background-color: #2c3e50;
-    border-radius: 50%;
-  }
-  
-  .results-calculation-iq-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 5px;
-    font-size: 0.8rem;
-    color: #7f8c8d;
-  }
-  
-  /* Situational Feedback */
-  .results-calculation-situation-feedback ul {
-    list-style-type: none;
-    padding-left: 0;
-  }
-  
-  .results-calculation-situation-feedback li {
-    margin-bottom: 10px;
+}
+
+@media (max-width: 480px) {
+  .results-calculation-container {
     padding: 10px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .results-calculation-sections {
-      grid-template-columns: 1fr;
-    }
-    
-    .results-calculation-traits {
-      grid-template-columns: 1fr;
-    }
-    
-    .results-calculation-container {
-      padding: 15px;
-    }
-    
-    .results-calculation-title {
-      font-size: 1.6rem;
-    }
+
+  .results-calculation-title {
+    font-size: 1.6rem;
   }
+
+  .results-calculation-section {
+    padding: 20px;
+  }
+}
+
+/* Dark Mode Adjustments */
+[data-theme='dark'] {
+  .results-calculation-overview,
+  .results-calculation-section,
+  .results-calculation-situation-feedback li {
+    background-color: var(--glass-bg-solid);
+    border-color: var(--glass-border);
+  }
+
+  .results-calculation-title,
+  .results-calculation-section h3,
+  .results-calculation-trait h4 {
+    color: var(--primary-color);
+  }
+
+  .results-calculation-subtitle,
+  .results-calculation-completion,
+  .results-calculation-accuracy,
+  .results-calculation-feedback,
+  .results-calculation-iq-labels {
+    color: var(--light-text);
+  }
+}

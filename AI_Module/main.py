@@ -2,13 +2,15 @@ import pdfplumber
 import re
 import os
 from flask import Flask, request, jsonify
+import traceback
 from collections import Counter, defaultdict
 from datetime import datetime
 from typing import List, Dict, Set, Tuple
 import hashlib
-from fuzzywuzzy import fuzz 
+from fuzzywuzzy import fuzz
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+import io  # Added to handle file object
 
 # Profession-specific keywords for detection
 PROFESSION_KEYWORDS = {
@@ -41,15 +43,17 @@ SECTION_STARTS = {
 GENERAL_SKILLS = {'communication', 'teamwork', 'leadership', 'problem solving', 'project management', 'research', 'analysis', 'negotiation'}
 
 # --- Utility Functions ---
-def extract_text_from_pdf(cv_path: str) -> str:
-    """Extract raw text from PDF using pdfplumber for high accuracy."""
+def extract_text_from_pdf(file_object) -> str:
+    """Extract raw text from PDF file object using pdfplumber."""
     text = ""
     try:
-        with pdfplumber.open(cv_path) as pdf:
+        with pdfplumber.open(io.BytesIO(file_object.read())) as pdf:
             for page in pdf.pages:
                 extracted = page.extract_text()
                 if extracted:
                     text += extracted + "\n"
+                else:
+                    print(f"No text extracted from page {page.page_number}")
     except Exception as e:
         print(f"Error reading PDF: {e}")
     return text
@@ -246,11 +250,21 @@ def extract_projects(lines: List[str]) -> List[str]:
     return projects if projects else ["Not found"]
 
 # --- Main Processing Function ---
-def process_cv(cv_path: str) -> Dict:
-    """Process the CV and return a clean, deduplicated result."""
-    text = extract_text_from_pdf(cv_path)
+def process_cv(file_object) -> Dict:
+    """Process the CV file object and return a clean, deduplicated result."""
+    text = extract_text_from_pdf(file_object)
     if not text:
-        return {"error": "Could not extract text from CV"}
+        print("No text extracted from PDF")
+        return {
+            "contact_number": "Not found",
+            "email": "Not found",
+            "experience": ["Not found"],
+            "education": ["Not found"],
+            "skills": ["Not found"],
+            "projects": ["Not found"],
+            "detected_profession": "Unknown",
+            "suggested_career_paths": ["General career exploration recommended"]
+        }
     
     lines = get_clean_lines(text)
     profession, profession_keywords = detect_profession(lines)
@@ -265,6 +279,7 @@ def process_cv(cv_path: str) -> Dict:
         "detected_profession": profession,
         "suggested_career_paths": CAREER_PATHS.get(profession, ["General career exploration recommended"])
     }
+    print(f"Extracted data: {result}")  # Debugging log
     return result
 
 # --- Flask API Setup ---
@@ -290,39 +305,29 @@ def allowed_file(filename):
 
 @app.route('/extract_cv', methods=['POST'])
 def extract_cv():
-    """Handle CV file upload and extraction."""
-    if 'cv' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
-    
-    cv_file = request.files['cv']
-    
-    if cv_file.filename == '':
-        return jsonify({"error": "No file selected"}), 400
-    
-    if not allowed_file(cv_file.filename):
-        return jsonify({"error": "Only PDF files are allowed"}), 400
-    
     try:
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        filename = secure_filename(cv_file.filename)
-        cv_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        cv_file.save(cv_path)
+        if 'cv' not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+
+        cv_file = request.files['cv']
+        if not cv_file.filename.lower().endswith('.pdf'):
+            return jsonify({"error": "Only PDF files allowed"}), 400
+
+        # Process the file object directly
+        result = process_cv(cv_file)
         
-        result = process_cv(cv_path)
-        
-        if os.path.exists(cv_path):
-            os.remove(cv_path)
-        
-        return jsonify(result)
-        
-    except FileNotFoundError:
-        return jsonify({"error": "Upload directory not found"}), 500
-    except PermissionError:
-        return jsonify({"error": "Permission denied when saving file"}), 500
+        return jsonify({
+            "status": "success",
+            "data": result
+        }), 200
+
     except Exception as e:
-        if 'cv_path' in locals() and os.path.exists(cv_path):
-            os.remove(cv_path)
-        return jsonify({"error": f"Error processing CV: {str(e)}"}), 500
+        print(f"Error in extract_cv: {str(e)}")
+        print(f"Traceback: {traceback.format_exc()}")  # Detailed error logging
+        return jsonify({
+            "error": str(e),
+            "trace": traceback.format_exc()
+        }), 500
 
 @app.route('/health', methods=['GET'])
 def health_check():

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./JobCandidateQuestionnaire.css";
 import PersonalityResults from "./PersonalityResults";
-import { saveTestResults } from "./api";
 
 const JobCandidateQuestionnaire = () => {
   const [responses, setResponses] = useState({});
@@ -19,20 +18,20 @@ const JobCandidateQuestionnaire = () => {
     }));
   };
 
-  const handleSubmit = async () => {
-    const eqScore = calculateEQScore(answers);
-    const iqScore = calculateIQScore(answers);
-    setScores({ eq: eqScore, iq: iqScore });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
     
     try {
-      await saveTestResults({
-        candidate_id: localStorage.getItem('userId'),
-        eq_score: eqScore,
-        iq_score: iqScore
-      });
-      setTestCompleted(true);
+      // In a real app, you would save to backend here
+      localStorage.setItem('assessmentResponses', JSON.stringify(responses));
+      setShowResults(true);
+      window.scrollTo(0, 0);
     } catch (error) {
-      console.error('Error saving test results:', error);
+      console.error("Submission failed:", error);
+      alert("Failed to submit. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

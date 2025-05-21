@@ -10,6 +10,7 @@ import TechnicalTestMain from './TechnicalTestMain';
 import JobCandidateQuestionnaire from './JobCandidateQuestionnaire';
 import TechResults from './TechResults';
 import ViewProfile from './ViewProfile';
+import Profile from './Profile';
 import Shortlisted from './Shortlisted';
 import './index.css';
 
@@ -58,6 +59,7 @@ root.render(
           <Route path="/JobCandidateQuestionnaire" element={<JobCandidateQuestionnaire />} />
           <Route path="/view-profile" element={<ViewProfile />} />
           <Route path="/Shortlisted" element={<Shortlisted />} />
+          <Route path="/Profile" element={<Profile />} />
           <Route path="/technical-test/:jobId" element={<TechnicalTestMain />} />
           <Route path="/test-results/:jobId" element={<TechResults />} />
         </Routes>

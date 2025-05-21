@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import "./RecruiterMain.css";
 import Preloader from "./Preloader";
 import logo from "./logo.png";
@@ -7,7 +7,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import Applicants from "./Applicants.png";
 import Post from "./Post.png";
 import Shortlist from "./Shortlist.png";
-import axios from "axios"; // Added axios
+import axios from "axios";
 
 const RecruiterMain = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +16,7 @@ const RecruiterMain = () => {
   const [viewMode, setViewMode] = useState("all");
   const [expandedApplicant, setExpandedApplicant] = useState(null);
   const applicantsSectionRef = useRef(null);
-  const navigate = useNavigate(); // Added for redirection
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 6000);
@@ -33,7 +33,7 @@ const RecruiterMain = () => {
         appliedDate: "2 days ago",
         skills: ["React", "JavaScript", "HTML/CSS"],
         isShortlisted: false,
-        isSaved: false
+        isSaved: false,
       },
       {
         id: 2,
@@ -46,7 +46,7 @@ const RecruiterMain = () => {
         appliedDate: "1 day ago",
         skills: ["CSS", "Accessibility"],
         isShortlisted: true,
-        isSaved: false
+        isSaved: false,
       },
       {
         id: 3,
@@ -59,35 +59,43 @@ const RecruiterMain = () => {
         appliedDate: "3 days ago",
         skills: ["Figma", "UI/UX"],
         isShortlisted: false,
-        isSaved: true
-      }
+        isSaved: true,
+      },
     ];
     
     setApplicants(sampleApplicants);
     return () => clearTimeout(timer);
   }, []);
 
-  const handlelogout = async () => {
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+     
+      navigate('/');
+      return;
+    }
+
     try {
-      await axios.post('http://localhost:5001/api/logout', {}, {
+      const response = await axios.post('http://localhost:5001/api/logout', {}, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
+      console.log('Logout response:', response.data); // Debug logging
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
-      navigate('/login'); // Redirect to login page
+      navigate('/');
     } catch (error) {
       console.error('Logout failed:', error.response?.data?.error || error.message);
-      alert('Failed to log out. Please try again.');
+      alert(`Failed to log out: ${error.response?.data?.error || 'Please try again.'}`);
     }
   };
 
   const handleViewApplicantsClick = () => {
     applicantsSectionRef.current.scrollIntoView({
       behavior: "smooth",
-      block: "start"
+      block: "start",
     });
     setViewMode("all");
   };
@@ -95,7 +103,7 @@ const RecruiterMain = () => {
   const handleViewShortlisted = () => {
     applicantsSectionRef.current.scrollIntoView({
       behavior: "smooth",
-      block: "start"
+      block: "start",
     });
     setViewMode("shortlisted");
   };
@@ -130,7 +138,7 @@ const RecruiterMain = () => {
       "Reviewed": "status-reviewed",
       "Interview": "status-interview",
       "Hired": "status-hired",
-      "Rejected": "status-rejected"
+      "Rejected": "status-rejected",
     };
     return statusMap[status] || "";
   };
@@ -174,7 +182,7 @@ const RecruiterMain = () => {
         <div className="recruiter-main-logout-container">
           <button
             className="recruiter-main-menu-item recruiter-main-logout"
-            onClick={handlelogout}
+            onClick={handleLogout}
           >
             <i className="fas fa-sign-out-alt"></i>
             <span>Logout</span>

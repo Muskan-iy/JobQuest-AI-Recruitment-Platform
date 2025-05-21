@@ -1,17 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { extractCV, getJobMatches } from './api';
+import { extractCV, uploadCV } from './api';
 import './ViewProfile.css';
 
 const ViewProfile = () => {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [profileData, setProfileData] = useState(null);
+  const [profileData, setProfileData] = useState({
+    experience: [],
+    education: [],
+    skills: [],
+    projects: [],
+    suggested_career_paths: [],
+    detected_profession: "",
+    email: "",
+    contact_number: ""
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [userName, setUserName] = useState('');
+  const [candidateId, setCandidateId] = useState(null);
   const fileInputRef = useRef();
   const navigate = useNavigate();
-  const [matches, setMatches] = useState([]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -33,39 +42,59 @@ const ViewProfile = () => {
       setError("Please select a file first");
       return;
     }
+    if (!userName) {
+      setError("Please enter your name");
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const data = await extractCV(selectedFile);
-      setProfileData(data);
+      // Step 1: Extract CV data from AI module
+      const extractedData = await extractCV(selectedFile);
+      console.log("Extracted data from AI:", extractedData); // Debugging log
+      if (!extractedData) {
+        throw new Error("No data extracted from CV");
+      }
+
+      setProfileData({
+        experience: extractedData.experience || [],
+        education: extractedData.education || [],
+        skills: extractedData.skills || [],
+        projects: extractedData.projects || [],
+        suggested_career_paths: extractedData.suggested_career_paths || [],
+        detected_profession: extractedData.detected_profession || "Not specified",
+        email: extractedData.email || "Not found",
+        contact_number: extractedData.contact_number || "Not found"
+      });
+
+      // Step 2: Upload CV to backend
+      const formData = new FormData();
+      formData.append('cv', selectedFile);
+      formData.append('name', userName);
+      formData.append('cv_data', JSON.stringify(extractedData));
+      const response = await uploadCV(formData);
+      setCandidateId(response.candidate_id);
     } catch (err) {
-      setError(`Failed to process CV: ${err.message}`);
+      console.error('Error:', err);
+      setError(err.message || 'Failed to process CV');
     } finally {
       setIsLoading(false);
-      fileInputRef.current.value = '';
     }
   };
 
-  useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        const response = await getJobMatches(localStorage.getItem('userId'));
-        setMatches(response.matches);
-      } catch (error) {
-        console.error('Error fetching matches:', error);
-      }
-    };
-    fetchMatches();
-  }, []);
+  const handleViewJobs = () => {
+    if (candidateId) {
+      navigate('/jobs');
+    } else {
+      setError("Please upload a CV first");
+    }
+  };
 
   return (
     <div className="viewProfilePageContainer">
-      <button 
-        onClick={() => navigate(-1)} 
-        className="viewProfileBackButton"
-      >
+      <button onClick={() => navigate(-1)} className="viewProfileBackButton">
         <i className="fas fa-arrow-left"></i> Back to Dashboard
       </button>
 
@@ -137,13 +166,20 @@ const ViewProfile = () => {
                 <p><i className="fas fa-phone"></i> {profileData.contact_number}</p>
               )}
             </div>
+            <button 
+              className="viewProfileViewJobsButton"
+              onClick={handleViewJobs}
+              disabled={!candidateId}
+            >
+              View Jobs
+            </button>
           </div>
 
           <div className="viewProfileDetails">
             <div className="viewProfileDetailSection">
               <h3 className="viewProfileSectionTitle">Experience</h3>
               <ul className="viewProfileExperienceList">
-                {profileData.experience.map((exp, index) => (
+                {profileData.experience?.map((exp, index) => (
                   <li key={index} className="viewProfileExperienceItem">
                     {exp}
                   </li>
@@ -154,7 +190,7 @@ const ViewProfile = () => {
             <div className="viewProfileDetailSection">
               <h3 className="viewProfileSectionTitle">Education</h3>
               <ul className="viewProfileEducationList">
-                {profileData.education.map((edu, index) => (
+                {profileData.education?.map((edu, index) => (
                   <li key={index} className="viewProfileEducationItem">
                     {edu}
                   </li>
@@ -165,7 +201,7 @@ const ViewProfile = () => {
             <div className="viewProfileDetailSection">
               <h3 className="viewProfileSectionTitle">Skills</h3>
               <ul className="viewProfileSkillsList">
-                {profileData.skills.map((skill, index) => (
+                {profileData.skills?.map((skill, index) => (
                   <li key={index} className="viewProfileSkillItem">
                     {skill}
                   </li>
@@ -176,7 +212,7 @@ const ViewProfile = () => {
             <div className="viewProfileDetailSection">
               <h3 className="viewProfileSectionTitle">Projects</h3>
               <ul className="viewProfileProjectsList">
-                {profileData.projects.map((project, index) => (
+                {profileData.projects?.map((project, index) => (
                   <li key={index} className="viewProfileProjectItem">
                     {project}
                   </li>
@@ -187,7 +223,7 @@ const ViewProfile = () => {
             <div className="viewProfileDetailSection">
               <h3 className="viewProfileSectionTitle">Suggested Career Paths</h3>
               <ul className="viewProfileCareerList">
-                {profileData.suggested_career_paths.map((path, index) => (
+                {profileData.suggested_career_paths?.map((path, index) => (
                   <li key={index} className="viewProfileCareerItem">
                     {path}
                   </li>
@@ -197,18 +233,6 @@ const ViewProfile = () => {
           </div>
         </div>
       )}
-
-      <div className="matches-section">
-        <h3>Job Matches</h3>
-        {matches.map(match => (
-          <div key={match.job_id} className="match-card">
-            <h4>{match.title}</h4>
-            <p>Match Score: {match.match_score.toFixed(1)}%</p>
-            <p>EQ Requirement Met: {match.eq_match ? '✅' : '❌'}</p>
-            <p>IQ Requirement Met: {match.iq_match ? '✅' : '❌'}</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

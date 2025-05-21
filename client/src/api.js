@@ -3,51 +3,49 @@ import axios from 'axios';
 const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5001';
 const AI_BASE = process.env.REACT_APP_AI_BASE || 'http://localhost:5000';
 
-// Helper function to handle axios responses and errors
 const handleAxiosError = (error) => {
   const errorMessage = error.response?.data?.error || error.message || 'Request failed';
   console.error('API error:', errorMessage);
   throw new Error(errorMessage);
 };
 
-// Extract CV (calls a separate AI service)
-export const extractCV = async (cvFile) => {
-  if (!cvFile) {
-    throw new Error('No file provided');
-  }
-
-  if (cvFile.size > 5 * 1024 * 1024) {
-    throw new Error('File size exceeds 5MB limit');
-  }
-
-  if (cvFile.type !== 'application/pdf') {
-    throw new Error('Only PDF files are accepted');
-  }
-
+export const extractCV = async (file) => {
   const formData = new FormData();
-  formData.append('cv', cvFile);
+  formData.append('cv', file);
 
   try {
     const response = await axios.post(`${AI_BASE}/extract_cv`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 30000,
     });
-    return response.data;
+
+    if (response.data.status !== 'success') {
+      throw new Error('CV extraction failed');
+    }
+
+    console.log('Extracted CV data from AI:', response.data.data); // Debugging log
+
+    return response.data.data; // Return the nested data object directly
   } catch (error) {
-    handleAxiosError(error);
+    console.error('API Error in extractCV:', error.response?.data || error);
+    throw new Error(error.response?.data?.error || 'Failed to process CV');
   }
 };
 
 // Login user
 export const loginUser = async (email, password) => {
   try {
-    const response = await axios.post(`${API_BASE}/api/login`, { email, password }, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      withCredentials: true
-    });
+    const response = await axios.post(
+      `${API_BASE}/api/login`,
+      { email, password },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      }
+    );
+    console.log('Login response:', response.data);
     return response.data;
   } catch (error) {
     handleAxiosError(error);
@@ -59,10 +57,11 @@ export const registerUser = async (userData) => {
   try {
     const response = await axios.post(`${API_BASE}/api/signup`, userData, {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      withCredentials: true
+      withCredentials: true,
     });
+    console.log('Signup response:', response.data);
     return response.data;
   } catch (error) {
     handleAxiosError(error);
@@ -72,7 +71,9 @@ export const registerUser = async (userData) => {
 // Check backend health
 export const checkHealth = async () => {
   try {
-    const response = await axios.get(`${API_BASE}/api/health`);
+    const response = await axios.get(`${API_BASE}/api/health`, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     handleAxiosError(error);
@@ -88,8 +89,9 @@ export const saveProfile = async (profileData, token) => {
     const response = await axios.post(`${API_BASE}/api/profile`, profileData, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
     });
     return response.data;
   } catch (error) {
@@ -107,8 +109,9 @@ export const postJob = async (jobData) => {
     const response = await axios.post(`${API_BASE}/api/jobs`, jobData, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
     });
     return response.data;
   } catch (error) {
@@ -126,8 +129,72 @@ export const uploadCV = async (formData) => {
     const response = await axios.post(`${API_BASE}/api/candidates`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Apply for job
+export const applyJob = async (jobId) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  try {
+    const response = await axios.post(
+      `${API_BASE}/api/apply`,
+      { job_id: jobId },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
       }
+    );
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Get job applications
+export const getJobApplications = async (jobId) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  try {
+    const response = await axios.get(`${API_BASE}/api/job_applications/${jobId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+// Get candidate CV
+export const getCandidateCV = async (candidateId) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  try {
+    const response = await axios.get(`${API_BASE}/api/candidates/${candidateId}/cv`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      responseType: 'blob',
+      withCredentials: true,
     });
     return response.data;
   } catch (error) {
@@ -137,16 +204,12 @@ export const uploadCV = async (formData) => {
 
 // Save test results
 export const saveTestResults = async (testData) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
   try {
     const response = await axios.post(`${API_BASE}/api/tests`, testData, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
+      },
+      withCredentials: true,
     });
     return response.data;
   } catch (error) {
@@ -156,20 +219,12 @@ export const saveTestResults = async (testData) => {
 
 // Get job matches
 export const getJobMatches = async (candidateId) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
   try {
-    const response = await axios.get(`${API_BASE}/api/matches/${candidateId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    const response = await axios.get(`${API_BASE}/api/matches/${candidateId}`);
     return response.data;
   } catch (error) {
-    handleAxiosError(error);
+    console.error('Error fetching matches:', error);
+    throw error;
   }
 };
 
@@ -177,19 +232,30 @@ export const getJobMatches = async (candidateId) => {
 export const logoutUser = async () => {
   const token = localStorage.getItem('token');
   if (!token) {
-    throw new Error('No authentication token found');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    return { message: 'No token found, cleared local storage' };
   }
   try {
-    const response = await axios.post(`${API_BASE}/api/logout`, {}, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+    const response = await axios.post(
+      `${API_BASE}/api/logout`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
       }
-    });
+    );
+    console.log('Logout response:', response.data);
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     return response.data;
   } catch (error) {
+    console.error('Logout error:', error);
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     handleAxiosError(error);
   }
 };
